@@ -104,9 +104,12 @@ deploy到maven，使用方直接依赖jar包，并且使用jar中间的bean和cl
 
 
 
-## 项目流程
+## 项目整体流程
 
-![Alt text](图片链接 "optional title")
+![Alt text](doraemon.png)
+
+
+## 最后
 
 这个项目也是 `惠农网` 开源的第一个开源文档和开源代码，希望这个思路有助于中等规模的公司在落地微服务的过程中少走一点弯路。
 
