@@ -109,6 +109,12 @@ deploy到maven，使用方直接依赖jar包，并且使用jar中间的bean和cl
 ![Alt text](doraemon.png)
 
 
+## 项目使用方式
+
+- 编译整个项目 mvn clean package
+- 根据eureka获取生成所有项目的路径，并且生成对应的sdk项目
+- deploy对应的项目jar
+
 ## 最后
 
 这个项目也是 `惠农网` 开源的第一个开源文档和开源代码，希望这个思路有助于中等规模的公司在落地微服务的过程中少走一点弯路。
