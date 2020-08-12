@@ -1,0 +1,13 @@
+#hn-sentry-dsn: http://0d6ccc680b5a4bdeb5537e38af468009@sentry.cnhnb.com/105
+
+config:
+  eurekaUrl: http://10.10.3.62:1111/eureka/apps
+
+spring:
+  jackson:
+    serialization:
+      WRITE_DATES_AS_TIMESTAMPS: true
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: GMT+8
+logging:
+  file: ${spring.application.name}

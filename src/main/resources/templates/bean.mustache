@@ -1,0 +1,22 @@
+package {{modelPackage}};
+import java.io.Serializable;
+import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+{{#importList}}
+import {{{import}}};
+{{/importList}}
+
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class {{className}} implements Serializable{
+{{#fieldList}}
+  @Schema(description = "{{description}}")
+  private {{&type}} {{field}};
+{{/fieldList}}
+
+}

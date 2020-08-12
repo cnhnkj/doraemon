@@ -1,0 +1,64 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" >
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>com.huinong.truffle</groupId>
+    <artifactId>hn-framework-parent</artifactId>
+    <version>2.3.0-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>doraemon</artifactId>
+  <packaging>jar</packaging>
+  <name>doraemon</name>
+  <description>doraemon for Spring Boot</description>
+
+  <properties>
+    <m2e.apt.activation>disabled</m2e.apt.activation>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>com.huinong.truffle</groupId>
+      <artifactId>hn-framework-starter-web</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.github.spullara.mustache.java</groupId>
+      <artifactId>compiler</artifactId>
+      <version>0.9.2</version>
+    </dependency>
+    <dependency>
+      <groupId>org.openapitools</groupId>
+      <artifactId>openapi-generator</artifactId>
+      <version>4.3.1</version>
+    </dependency>
+  </dependencies>
+
+  <repositories>
+    <repository>
+      <id>rdc-snapshots</id>
+      <url>https://repo.rdc.aliyun.com/repository/42088-snapshot-klmv8u/</url>
+    </repository>
+  </repositories>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <goals>
+              <goal>repackage</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+      </plugin>
+    </plugins>
+    <finalName>${project.artifactId}</finalName>
+  </build>
+</project>

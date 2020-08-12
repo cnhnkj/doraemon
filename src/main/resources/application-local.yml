@@ -1,0 +1,8 @@
+hn-sentry-dsn: http://0d6ccc680b5a4bdeb5537e38af468009@sentry.cnhnb.com/105
+
+spring:
+  jackson:
+    serialization:
+      WRITE_DATES_AS_TIMESTAMPS: true
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: GMT+8
