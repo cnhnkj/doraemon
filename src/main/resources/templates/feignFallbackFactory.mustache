@@ -1,0 +1,37 @@
+package {{apiPackage}};
+
+import com.huinong.framework.autoconfigure.feign.HnFeignConfig.FeignExceptionHandler;
+import com.huinong.framework.autoconfigure.web.BaseResult;
+import feign.hystrix.FallbackFactory;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Autowired;
+import com.huinong.truffle.doraemon.api.feign.Feign
+
+{{#importList}}import {{{import}}};
+{{/importList}}
+
+@Component
+@Slf4j
+public class FeignFallbackFactory implements FallbackFactory<Feign> {
+
+  @Autowired
+  private FeignExceptionHandler feignExceptionHandler;
+
+  @Override
+  public Feign create(Throwable throwable) {
+     return new Feign(){
+
+        {{#operations}}
+          {{#operation}}
+            @Override
+            BaseResult<{{returnType}}> {{operationId}}({{#allParams}}{{>queryParams}}{{>pathParams}}{{>headerParams}}{{>bodyParams}}{{>formParams}}{{#hasMore}},{{/hasMore}}{{^hasMore}}{{#reactive}}, {{/reactive}}{{/hasMore}}{{/allParams}}) {
+              return feignExceptionHandler.handleException(throwable);
+            }
+          {{/operation}}
+        {{/operations}}
+
+
+      };
+    }
+}

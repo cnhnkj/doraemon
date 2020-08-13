@@ -172,12 +172,18 @@ public class HnCodeGenerator extends DefaultGenerator {
       result.put("importList", imports);
       result.put("operations", methods);
     }
-    String beanOutputFilePath = PathUtils
+    String feignOutputFilePath = PathUtils
         .combinePath("src", "main", "java", "com", "huinong", "truffle", "doraemon", "api",
             "feign",
             "Feign" + ".java");
+
+    String feignFallbackFactoryOutputFilePath = PathUtils
+        .combinePath("src", "main", "java", "com", "huinong", "truffle", "doraemon", "api",
+            "feign",
+            "FeignFallbackFactory" + ".java");
     try {
-      super.processTemplateToFile(result, "feign.mustache", beanOutputFilePath);
+      super.processTemplateToFile(result, "feign.mustache", feignOutputFilePath);
+      super.processTemplateToFile(result, "feignFallbackFactory.mustache", feignFallbackFactoryOutputFilePath);
     } catch (IOException e) {
       e.printStackTrace();
       log.info("load file error message is {}", e.getMessage());
