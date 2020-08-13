@@ -16,8 +16,8 @@ import org.springframework.web.bind.annotation.RequestPart;
 {{#importList}}import {{{import}}};
 {{/importList}}
 
-@FeignClient(name = "{{serviceName}}", fallbackFactory = FeignFallbackFactory.class)
-public interface Feign{
+@FeignClient(name = "{{serviceName}}", fallbackFactory = {{feignClientName}}FeignFallbackFactory.class)
+public interface {{feignClientName}}Feign{
 {{#operations}}
   {{#operation}}
 

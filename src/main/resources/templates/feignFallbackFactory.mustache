@@ -13,14 +13,14 @@ import com.huinong.truffle.doraemon.api.feign.Feign
 
 @Component
 @Slf4j
-public class FeignFallbackFactory implements FallbackFactory<Feign> {
+public class {{feignClientName}}FeignFallbackFactory implements FallbackFactory<{{feignClientName}}Feign> {
 
   @Autowired
   private FeignExceptionHandler feignExceptionHandler;
 
   @Override
-  public Feign create(Throwable throwable) {
-     return new Feign(){
+  public {{feignClientName}}Feign create(Throwable throwable) {
+     return new {{feignClientName}}Feign(){
 
         {{#operations}}
           {{#operation}}

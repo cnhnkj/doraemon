@@ -130,8 +130,11 @@ public class HnCodeGenerator extends DefaultGenerator {
     Map<String, List<CodegenOperation>> paths = processPaths(this.openAPI.getPaths());
     Map<String, Object> result = Maps.newHashMap();
 
-    result.put("serviceName", "hn-university");
+    String serviceId = "hn-university";
+    String feignClientName = serviceId2FeignClient(serviceId);
+    result.put("serviceName", serviceId);
     result.put("apiPackage", config.apiPackage());
+    result.put("feignClientName", feignClientName);
 
     List<Map<String, String>> imports = new ArrayList<>();
     List<Map<String, Object>> methods = new ArrayList<>();
@@ -175,12 +178,12 @@ public class HnCodeGenerator extends DefaultGenerator {
     String feignOutputFilePath = PathUtils
         .combinePath("src", "main", "java", "com", "huinong", "truffle", "doraemon", "api",
             "feign",
-            "Feign" + ".java");
+            feignClientName + "Feign.java");
 
     String feignFallbackFactoryOutputFilePath = PathUtils
         .combinePath("src", "main", "java", "com", "huinong", "truffle", "doraemon", "api",
             "feign",
-            "FeignFallbackFactory" + ".java");
+            feignClientName + "FeignFallbackFactory" + ".java");
     try {
       super.processTemplateToFile(result, "feign.mustache", feignOutputFilePath);
       super.processTemplateToFile(result, "feignFallbackFactory.mustache", feignFallbackFactoryOutputFilePath);
@@ -189,6 +192,24 @@ public class HnCodeGenerator extends DefaultGenerator {
       log.info("load file error message is {}", e.getMessage());
     }
 
+  }
+
+  private String serviceId2FeignClient(String serviceId) {
+    serviceId = serviceId.substring(0, 1).toUpperCase() + serviceId.substring(1);
+    int index = serviceId.indexOf("-");
+    while(index >= 0) {
+      serviceId =
+          serviceId.substring(0, index) + serviceId.substring(index + 1, index + 2).toUpperCase() + serviceId.substring(index + 2);
+      index = serviceId.indexOf("-");
+    }
+
+    index = serviceId.indexOf("_");
+    while(index >= 0) {
+      serviceId =
+          serviceId.substring(0, index - 1) + serviceId.substring(index, 1).toUpperCase() + serviceId.substring(index + 1);
+      index = serviceId.indexOf("_");
+    }
+    return serviceId;
   }
 
 
