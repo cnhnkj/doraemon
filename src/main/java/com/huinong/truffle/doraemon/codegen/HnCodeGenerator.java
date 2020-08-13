@@ -26,6 +26,12 @@ import org.springframework.util.CollectionUtils;
 @Slf4j
 public class HnCodeGenerator extends DefaultGenerator {
 
+  public String serviceId;
+
+  public HnCodeGenerator(String serviceId) {
+    this.serviceId = serviceId;
+  }
+
   @Override
   public List<File> generate() {
 
@@ -140,7 +146,6 @@ public class HnCodeGenerator extends DefaultGenerator {
     Map<String, List<CodegenOperation>> paths = processPaths(this.openAPI.getPaths());
     Map<String, Object> result = Maps.newHashMap();
 
-    String serviceId = "hn-university";
     String feignClientName = serviceId2FeignClient(serviceId);
     result.put("serviceName", serviceId);
     result.put("apiPackage", config.apiPackage());

@@ -47,7 +47,7 @@ public class Gen {
 //    new DefaultGenerator().opts(opts).generate();
 
     ClientOptInput input = new ClientOptInput().config(new HnJavaClientCodegen()).openAPI(openAPI);
-    HnCodeGenerator apiCodegen = new HnCodeGenerator();
+    HnCodeGenerator apiCodegen = new HnCodeGenerator("hn-university");
     apiCodegen.setGeneratorPropertyDefault(CodegenConstants.APIS, "true");;
     apiCodegen.setGeneratorPropertyDefault(CodegenConstants.MODELS, "true");
     apiCodegen.opts(input).generate();

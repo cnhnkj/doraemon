@@ -53,8 +53,10 @@ public class DoraemonApplication implements CommandLineRunner {
       String location = instanceInfo.getHomePageUrl() + "/v3/api-docs";
       OpenAPI openAPI = openAPIV3Parser.read(location);
 
+      String serviceId = instanceInfo.getApp().toLowerCase();
+
       ClientOptInput input = new ClientOptInput().config(new HnJavaClientCodegen()).openAPI(openAPI);
-      HnCodeGenerator apiCodegen = new HnCodeGenerator();
+      HnCodeGenerator apiCodegen = new HnCodeGenerator(serviceId);
       apiCodegen.setGeneratorPropertyDefault(CodegenConstants.APIS, "true");;
       apiCodegen.setGeneratorPropertyDefault(CodegenConstants.MODELS, "true");
       apiCodegen.opts(input).generate();
