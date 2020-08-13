@@ -21,6 +21,7 @@ import org.openapitools.codegen.CodegenModel;
 import org.openapitools.codegen.CodegenOperation;
 import org.openapitools.codegen.DefaultGenerator;
 import org.openapitools.codegen.utils.ModelUtils;
+import org.springframework.util.CollectionUtils;
 
 @Slf4j
 public class HnCodeGenerator extends DefaultGenerator {
@@ -48,13 +49,17 @@ public class HnCodeGenerator extends DefaultGenerator {
         Map<String, Schema> schemaMap = new HashMap<>();
         schemaMap.put(name, schema);
         Map<String, Object> model = processModels(config, schemaMap);
-        objects.add(model);
+        if(!CollectionUtils.isEmpty(model)) {
+          objects.add(model);
+        }
       }
+
       objects.forEach(c -> {
-        String beanOutputFilePath = PathUtils
-            .combinePath("src", "main", "java", "com", "huinong", "truffle", "doraemon", "api",
-                "bean",
-                c.get("className") + ".java");
+        if (c.get("className") != null) {
+          String beanOutputFilePath = PathUtils
+              .combinePath("src", "main", "java", "com", "huinong", "truffle", "doraemon", "api",
+                  "bean",
+                  c.get("className") + ".java");
         try {
           super.processTemplateToFile(c, "bean.mustache", beanOutputFilePath);
 
@@ -62,6 +67,7 @@ public class HnCodeGenerator extends DefaultGenerator {
         } catch (IOException e) {
           e.printStackTrace();
         }
+      }
       });
     });
 
@@ -73,6 +79,10 @@ public class HnCodeGenerator extends DefaultGenerator {
     objs.put("modelPackage", config.modelPackage());
 
     for (String key : definitions.keySet()) {
+      if(key.startsWith("BaseResult")) {
+        continue;
+      }
+
       Schema schema = definitions.get(key);
       if (schema == null) {
         throw new RuntimeException("schema cannot be null in processModels");
@@ -148,6 +158,23 @@ public class HnCodeGenerator extends DefaultGenerator {
 
         operation.put("operation", codegenOperation);
 
+        String returnObject = codegenOperation.returnType;
+
+        if(returnObject.startsWith("BaseResultList")) {
+          returnObject = returnObject.replace("BaseResultList", "");
+          operation.put("returnObject", returnObject);
+          operation.put("returnObjectList", "1");
+        }
+
+
+        if(returnObject.startsWith("BaseResult")) {
+          returnObject = returnObject.replace("BaseResult", "");
+          operation.put("returnObject", returnObject);
+        }
+
+
+
+
         //获取需要import的包
         Set<String> allImports = codegenOperation.imports;
         allImports.addAll(codegenOperation.imports);
@@ -155,6 +182,18 @@ public class HnCodeGenerator extends DefaultGenerator {
         Set<String> mappingSet = new TreeSet<>();
         for (String nextImport : allImports) {
           Map<String, String> im = new LinkedHashMap<>();
+          if(nextImport.startsWith("BaseResultList")) {
+            nextImport = nextImport.replace("BaseResultList", "");
+          }
+
+          if(nextImport.startsWith("BaseResult")) {
+            nextImport = nextImport.replace("BaseResult", "");
+          }
+
+          if(nextImport.equals("Integer") || nextImport.equals("Long") || nextImport.equals("Void")) {
+            continue;
+          }
+
           String mapping = config.importMapping().get(nextImport);
           if (mapping == null) {
             mapping = config.toModelImport(nextImport);
@@ -163,6 +202,7 @@ public class HnCodeGenerator extends DefaultGenerator {
           if (mapping != null && !mappingSet
               .contains(mapping)) { // ensure import (mapping) is unique
             mappingSet.add(mapping);
+
             im.put("import", mapping);
             im.put("classname", nextImport);
             if (!imports.contains(im)) { // avoid duplicates

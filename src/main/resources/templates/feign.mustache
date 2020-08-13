@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
+import java.util.List;
+import com.huinong.framework.autoconfigure.web.BaseResult;
 
 {{#importList}}import {{{import}}};
 {{/importList}}
@@ -22,7 +24,7 @@ public interface {{feignClientName}}Feign{
   {{#operation}}
 
     @RequestMapping(value = "{{path}} ", method = RequestMethod.{{httpMethod}})
-    {{returnType}} {{operationId}}({{#allParams}}{{>queryParams}}{{>pathParams}}{{>headerParams}}{{>bodyParams}}{{>formParams}}{{#hasMore}},{{/hasMore}}{{^hasMore}}{{#reactive}}, {{/reactive}}{{/hasMore}}{{/allParams}});
+    BaseResult<{{#returnObjectList}}List<{{/returnObjectList}}{{returnObject}}{{#returnObjectList}}>{{/returnObjectList}}> {{operationId}}({{#allParams}}{{>queryParams}}{{>pathParams}}{{>headerParams}}{{>bodyParams}}{{>formParams}}{{#hasMore}},{{/hasMore}}{{^hasMore}}{{#reactive}}, {{/reactive}}{{/hasMore}}{{/allParams}});
   {{/operation}}
 {{/operations}}
 }
