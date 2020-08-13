@@ -19,18 +19,25 @@
 
   <dependencies>
     <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter</artifactId>
+    </dependency>
+    <dependency>
       <groupId>com.huinong.truffle</groupId>
       <artifactId>hn-framework-starter-web</artifactId>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>com.github.spullara.mustache.java</groupId>
       <artifactId>compiler</artifactId>
       <version>0.9.2</version>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.openapitools</groupId>
       <artifactId>openapi-generator</artifactId>
       <version>4.3.1</version>
+      <scope>provided</scope>
     </dependency>
   </dependencies>
 
