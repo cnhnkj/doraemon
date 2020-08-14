@@ -46,7 +46,7 @@ public class HnCodeGenerator extends DefaultGenerator {
     Map<String, Schema> schemaMap = new HashMap<>();
     schemaMap.put(modelName, schema);
     Map<String, Object> model = processModels(config, schemaMap, false);
-    if(!CollectionUtils.isEmpty(model)) {
+    if (!CollectionUtils.isEmpty(model)) {
       objects.add(model);
     }
 
@@ -80,7 +80,7 @@ public class HnCodeGenerator extends DefaultGenerator {
         Map<String, Schema> schemaMap = new HashMap<>();
         schemaMap.put(name, schema);
         Map<String, Object> model = processModels(config, schemaMap, true);
-        if(!CollectionUtils.isEmpty(model)) {
+        if (!CollectionUtils.isEmpty(model)) {
           objects.add(model);
         }
       }
@@ -89,16 +89,16 @@ public class HnCodeGenerator extends DefaultGenerator {
         if (c.get("className") != null) {
           String beanOutputFilePath = PathUtils
               .combinePath("src", "main", "java", "com", "huinong", "truffle", "doraemon", "api",
-                  "bean",this.serviceId,
+                  "bean", this.serviceId,
                   c.get("className") + ".java");
-        try {
-          super.processTemplateToFile(c, "bean.mustache", beanOutputFilePath);
+          try {
+            super.processTemplateToFile(c, "bean.mustache", beanOutputFilePath);
 
 
-        } catch (IOException e) {
-          e.printStackTrace();
+          } catch (IOException e) {
+            e.printStackTrace();
+          }
         }
-      }
       });
     });
 
@@ -110,7 +110,7 @@ public class HnCodeGenerator extends DefaultGenerator {
     objs.put("modelPackage", config.modelPackage());
 
     for (String key : definitions.keySet()) {
-      if(key.startsWith("BaseResult")) {
+      if (key.startsWith("BaseResult")) {
         continue;
       }
 
@@ -120,7 +120,7 @@ public class HnCodeGenerator extends DefaultGenerator {
       }
       CodegenModel cm = config.fromModel(key, schema);
 
-      if(!CollectionUtils.isEmpty(cm.getImports())) {
+      if (!CollectionUtils.isEmpty(cm.getImports())) {
         cm.getImports().stream().filter(im -> !im.equals("List")).forEach(im -> createModelByName(im));
       }
       objs.put("className", key);
@@ -138,7 +138,7 @@ public class HnCodeGenerator extends DefaultGenerator {
           fieldList.add(fieldMap);
         });
 
-        if(!hasApiModel) {
+        if (!hasApiModel) {
           allImports.remove("ApiModel");
         }
         Set<String> importSet = new TreeSet<>();
@@ -189,11 +189,12 @@ public class HnCodeGenerator extends DefaultGenerator {
       List<CodegenOperation> ops = paths.get(tag);
 
       for (CodegenOperation codegenOperation : ops) {
-        if(codegenOperation.path.startsWith("/api") || codegenOperation.path.startsWith("/hsww") || codegenOperation.path.startsWith("/openapi")) {
+        if (codegenOperation.path.startsWith("/api") || codegenOperation.path.startsWith("/hsww") || codegenOperation.path
+            .startsWith("/openapi")) {
           continue;
         }
 
-        if(codegenOperation.bodyParam != null) {
+        if (codegenOperation.bodyParam != null) {
           createModelByName(codegenOperation.bodyParam.baseName);
         }
 
@@ -202,11 +203,11 @@ public class HnCodeGenerator extends DefaultGenerator {
 
         String returnObject = codegenOperation.returnType;
 
-        if(returnObject.startsWith("BaseResultList")) {
+        if (returnObject.startsWith("BaseResultList")) {
           returnObject = returnObject.replace("BaseResultList", "");
           operation.put("returnObject", returnObject);
           operation.put("returnObjectList", "1");
-        } else if(returnObject.startsWith("BaseResult")) {
+        } else if (returnObject.startsWith("BaseResult")) {
           returnObject = returnObject.replace("BaseResult", "");
           operation.put("returnObject", returnObject);
         } else {
@@ -216,7 +217,6 @@ public class HnCodeGenerator extends DefaultGenerator {
 
         createModelByName(returnObject);
 
-
         //获取需要import的包
         Set<String> allImports = codegenOperation.imports;
         allImports.addAll(codegenOperation.imports);
@@ -224,15 +224,15 @@ public class HnCodeGenerator extends DefaultGenerator {
         Set<String> mappingSet = new TreeSet<>();
         for (String nextImport : allImports) {
           Map<String, String> im = new LinkedHashMap<>();
-          if(nextImport.startsWith("BaseResultList")) {
+          if (nextImport.startsWith("BaseResultList")) {
             nextImport = nextImport.replace("BaseResultList", "");
           }
 
-          if(nextImport.startsWith("BaseResult")) {
+          if (nextImport.startsWith("BaseResult")) {
             nextImport = nextImport.replace("BaseResult", "");
           }
 
-          if(nextImport.equals("Integer") || nextImport.equals("Long") || nextImport.equals("Void")) {
+          if (nextImport.equals("Integer") || nextImport.equals("Long") || nextImport.equals("Void")) {
             continue;
           }
 
@@ -259,12 +259,12 @@ public class HnCodeGenerator extends DefaultGenerator {
     }
     String feignOutputFilePath = PathUtils
         .combinePath("src", "main", "java", "com", "huinong", "truffle", "doraemon", "api",
-            "feign",this.serviceId,
+            "feign", this.serviceId,
             feignClientName + "Feign.java");
 
     String feignFallbackFactoryOutputFilePath = PathUtils
         .combinePath("src", "main", "java", "com", "huinong", "truffle", "doraemon", "api",
-            "feign",this.serviceId,
+            "feign", this.serviceId,
             feignClientName + "FeignFallbackFactory" + ".java");
     try {
       super.processTemplateToFile(result, "feign.mustache", feignOutputFilePath);
@@ -279,14 +279,15 @@ public class HnCodeGenerator extends DefaultGenerator {
   private String serviceId2FeignClient(String serviceId) {
     serviceId = serviceId.substring(0, 1).toUpperCase() + serviceId.substring(1);
     int index = serviceId.indexOf("-");
-    while(index >= 0) {
+    while (index >= 0) {
       serviceId =
-          serviceId.substring(0, index) + serviceId.substring(index + 1, index + 2).toUpperCase() + serviceId.substring(index + 2);
+          serviceId.substring(0, index) + serviceId.substring(index + 1, index + 2).toUpperCase() + serviceId
+              .substring(index + 2);
       index = serviceId.indexOf("-");
     }
 
     index = serviceId.indexOf("_");
-    while(index >= 0) {
+    while (index >= 0) {
       serviceId =
           serviceId.substring(0, index - 1) + serviceId.substring(index, 1).toUpperCase() + serviceId.substring(index + 1);
       index = serviceId.indexOf("_");

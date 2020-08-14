@@ -7,9 +7,6 @@ import io.swagger.v3.parser.OpenAPIV3Parser;
 import java.io.IOException;
 import org.openapitools.codegen.ClientOptInput;
 import org.openapitools.codegen.CodegenConstants;
-import org.openapitools.codegen.DefaultGenerator;
-import org.openapitools.codegen.languages.SpringCodegen;
-import org.openapitools.codegen.languages.features.CXFServerFeatures;
 
 public class Gen {
 
@@ -17,7 +14,7 @@ public class Gen {
     //openApiV3 解析器
     OpenAPIV3Parser openAPIV3Parser = new OpenAPIV3Parser();
 
-    OpenAPI openAPI = openAPIV3Parser.read("http://10.10.3.70:16310//v3/api-docs");
+    OpenAPI openAPI = openAPIV3Parser.read("http://10.10.3.70:16310/v3/api-docs");
 
     ClientOptInput input = new ClientOptInput().config(new HnJavaClientCodegen("coins")).openAPI(openAPI);
     HnCodeGenerator apiCodegen = new HnCodeGenerator("coins");

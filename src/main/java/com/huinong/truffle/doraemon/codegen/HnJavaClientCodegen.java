@@ -7,7 +7,7 @@ import org.openapitools.codegen.CodegenProperty;
 import org.openapitools.codegen.languages.SpringCodegen;
 
 public class HnJavaClientCodegen extends SpringCodegen {
-  
+
   /**
    * 初始化配置
    */
@@ -18,7 +18,6 @@ public class HnJavaClientCodegen extends SpringCodegen {
     apiTemplateFiles.put("feign.mustache", ".java");
     apiTemplateFiles.put("bean.mustache", ".java");
     modelTemplateFiles.put("bean.mustache", ".java");
-    outputFolder = "/Users/leiyuchen/Documents/demo";
     templateDir = "templates";
     embeddedTemplateDir = "templates";
     library = "templates";
@@ -30,8 +29,6 @@ public class HnJavaClientCodegen extends SpringCodegen {
   @Override
   public void processOpts() {
     super.processOpts();
-//    importMapping.put("ApiModelProperty", "io.swagger.annotations.ApiModelProperty");
-//    importMapping.put("ApiModel", "io.swagger.annotations.ApiModel");
   }
 
   /**
