@@ -9,8 +9,10 @@ import com.huinong.truffle.doraemon.domain.eureka.EurekaServiceInfo.EurekaInstan
 import com.huinong.truffle.doraemon.service.EurekaService;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.parser.OpenAPIV3Parser;
+import java.time.LocalDateTime;
 import java.util.List;
 import javax.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
 import org.openapitools.codegen.ClientOptInput;
 import org.openapitools.codegen.CodegenConstants;
 import org.springframework.boot.CommandLineRunner;
@@ -18,6 +20,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 
+@Slf4j
 @SpringBootApplication
 public class DoraemonApplication implements CommandLineRunner {
 
@@ -32,7 +35,8 @@ public class DoraemonApplication implements CommandLineRunner {
 
   @Override
   public void run(String... args) {
-    System.out.println("start doraemon project ");
+    log.info("start doraemon project, {}", LocalDateTime.now());
+
 
     BaseResult<AllEurekaServices> baseResult = eurekaService.getAllEurekaServiceInfo();
     List<EurekaServiceInfo> eurekaServiceInfoList = baseResult.getData().getApplications().getApplication();
@@ -55,7 +59,7 @@ public class DoraemonApplication implements CommandLineRunner {
 
       String serviceId = instanceInfo.getApp().toLowerCase();
 
-      ClientOptInput input = new ClientOptInput().config(new HnJavaClientCodegen()).openAPI(openAPI);
+      ClientOptInput input = new ClientOptInput().config(new HnJavaClientCodegen(serviceId)).openAPI(openAPI);
       HnCodeGenerator apiCodegen = new HnCodeGenerator(serviceId);
       apiCodegen.setGeneratorPropertyDefault(CodegenConstants.APIS, "true");;
       apiCodegen.setGeneratorPropertyDefault(CodegenConstants.MODELS, "true");
@@ -63,6 +67,6 @@ public class DoraemonApplication implements CommandLineRunner {
     });
 
 
-    System.out.println("done doraemon project ");
+    log.info("done doraemon project, {}", LocalDateTime.now());
   }
 }

@@ -7,15 +7,14 @@ import org.openapitools.codegen.CodegenProperty;
 import org.openapitools.codegen.languages.SpringCodegen;
 
 public class HnJavaClientCodegen extends SpringCodegen {
-
-
+  
   /**
    * 初始化配置
    */
-  public HnJavaClientCodegen() {
+  public HnJavaClientCodegen(String serviceId) {
     super();
-    modelPackage = "com.huinong.truffle.doraemon.api.bean";
-    apiPackage = "com.huinong.truffle.doraemon.api.feign";
+    modelPackage = "com.huinong.truffle.doraemon.api.bean." + serviceId;
+    apiPackage = "com.huinong.truffle.doraemon.api.feign." + serviceId;
     apiTemplateFiles.put("feign.mustache", ".java");
     apiTemplateFiles.put("bean.mustache", ".java");
     modelTemplateFiles.put("bean.mustache", ".java");

@@ -54,7 +54,7 @@ public class HnCodeGenerator extends DefaultGenerator {
       if (c.get("className") != null) {
         String beanOutputFilePath = PathUtils
             .combinePath("src", "main", "java", "com", "huinong", "truffle", "doraemon", "api",
-                "bean",
+                "bean", this.serviceId,
                 c.get("className") + ".java");
         try {
           super.processTemplateToFile(c, "bean.mustache", beanOutputFilePath);
@@ -89,7 +89,7 @@ public class HnCodeGenerator extends DefaultGenerator {
         if (c.get("className") != null) {
           String beanOutputFilePath = PathUtils
               .combinePath("src", "main", "java", "com", "huinong", "truffle", "doraemon", "api",
-                  "bean",
+                  "bean",this.serviceId,
                   c.get("className") + ".java");
         try {
           super.processTemplateToFile(c, "bean.mustache", beanOutputFilePath);
@@ -259,12 +259,12 @@ public class HnCodeGenerator extends DefaultGenerator {
     }
     String feignOutputFilePath = PathUtils
         .combinePath("src", "main", "java", "com", "huinong", "truffle", "doraemon", "api",
-            "feign",
+            "feign",this.serviceId,
             feignClientName + "Feign.java");
 
     String feignFallbackFactoryOutputFilePath = PathUtils
         .combinePath("src", "main", "java", "com", "huinong", "truffle", "doraemon", "api",
-            "feign",
+            "feign",this.serviceId,
             feignClientName + "FeignFallbackFactory" + ".java");
     try {
       super.processTemplateToFile(result, "feign.mustache", feignOutputFilePath);
