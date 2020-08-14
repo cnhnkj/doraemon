@@ -5,7 +5,6 @@ import com.google.common.collect.Maps;
 import com.huinong.framework.autoconfigure.okhttp.HnOkHttpBuilder;
 import com.huinong.framework.autoconfigure.okhttp.HnOkHttpClient;
 import com.huinong.framework.autoconfigure.web.BaseResult;
-import com.huinong.truffle.doraemon.config.Config;
 import com.huinong.truffle.doraemon.domain.eureka.AllEurekaServices;
 import java.util.Map;
 import javax.annotation.Resource;
@@ -19,8 +18,7 @@ public class EurekaService {
   @Resource
   private HnOkHttpClient hnOkHttpClient;
 
-  @Resource
-  Config config;
+  private final static String eurekaAddress = "http://10.10.3.62:1111/eureka/apps";
 
   public BaseResult<AllEurekaServices> getAllEurekaServiceInfo() {
     try {
@@ -31,13 +29,10 @@ public class EurekaService {
 
       HnOkHttpBuilder<AllEurekaServices> okHttpBuilder = new HnOkHttpBuilder<>(){};
       okHttpBuilder.setTypeReference(allEurekaServicesTypeReference);
-      okHttpBuilder.setUrl(config.getEurekaUrl());
+      okHttpBuilder.setUrl(eurekaAddress);
       okHttpBuilder.setHeaders(headers);
 
       return hnOkHttpClient.get(okHttpBuilder);
-//      return hnOkHttpClient
-//          .get(HnOkHttpBuilder.builder().url(config.getEurekaUrl()).headers(headers)
-//              .typeReference(allEurekaServicesTypeReference).build());
     } catch (Exception e) {
       log.error(e.getMessage(), e);
       return BaseResult.fail(-1, "请求出错");

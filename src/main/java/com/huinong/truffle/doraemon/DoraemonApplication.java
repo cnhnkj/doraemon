@@ -35,8 +35,9 @@ public class DoraemonApplication implements CommandLineRunner {
 
   @Override
   public void run(String... args) {
-    log.info("start doraemon project, {}", LocalDateTime.now());
+    int argsLength = args.length;
 
+    log.info("start doraemon project, {}", LocalDateTime.now());
 
     BaseResult<AllEurekaServices> baseResult = eurekaService.getAllEurekaServiceInfo();
     List<EurekaServiceInfo> eurekaServiceInfoList = baseResult.getData().getApplications().getApplication();
@@ -54,10 +55,17 @@ public class DoraemonApplication implements CommandLineRunner {
         return ;
       }
 
+      String serviceId;
+      if(argsLength > 0 && instanceInfo.getApp().equalsIgnoreCase(args[0])) {
+        serviceId = args[0];
+      } else if (argsLength == 0) {
+        serviceId = instanceInfo.getApp().toLowerCase();
+      } else {
+        return ;
+      }
+
       String location = instanceInfo.getHomePageUrl() + "/v3/api-docs";
       OpenAPI openAPI = openAPIV3Parser.read(location);
-
-      String serviceId = instanceInfo.getApp().toLowerCase();
 
       ClientOptInput input = new ClientOptInput().config(new HnJavaClientCodegen(serviceId)).openAPI(openAPI);
       HnCodeGenerator apiCodegen = new HnCodeGenerator(serviceId);
@@ -65,7 +73,6 @@ public class DoraemonApplication implements CommandLineRunner {
       apiCodegen.setGeneratorPropertyDefault(CodegenConstants.MODELS, "true");
       apiCodegen.opts(input).generate();
     });
-
 
     log.info("done doraemon project, {}", LocalDateTime.now());
   }

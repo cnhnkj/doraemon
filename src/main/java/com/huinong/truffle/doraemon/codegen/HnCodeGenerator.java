@@ -3,6 +3,7 @@ package com.huinong.truffle.doraemon.codegen;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.huinong.truffle.doraemon.utils.PathUtils;
+import com.huinong.truffle.doraemon.utils.ServiceUtils;
 import io.swagger.v3.oas.models.media.Schema;
 import java.io.File;
 import java.io.IOException;
@@ -177,7 +178,7 @@ public class HnCodeGenerator extends DefaultGenerator {
     Map<String, List<CodegenOperation>> paths = processPaths(this.openAPI.getPaths());
     Map<String, Object> result = Maps.newHashMap();
 
-    String feignClientName = serviceId2FeignClient(serviceId);
+    String feignClientName = ServiceUtils.serviceId2FeignClient(serviceId);
     result.put("serviceName", serviceId);
     result.put("apiPackage", config.apiPackage());
     result.put("feignClientName", feignClientName);
@@ -274,25 +275,6 @@ public class HnCodeGenerator extends DefaultGenerator {
       log.info("load file error message is {}", e.getMessage());
     }
 
-  }
-
-  private String serviceId2FeignClient(String serviceId) {
-    serviceId = serviceId.substring(0, 1).toUpperCase() + serviceId.substring(1);
-    int index = serviceId.indexOf("-");
-    while (index >= 0) {
-      serviceId =
-          serviceId.substring(0, index) + serviceId.substring(index + 1, index + 2).toUpperCase() + serviceId
-              .substring(index + 2);
-      index = serviceId.indexOf("-");
-    }
-
-    index = serviceId.indexOf("_");
-    while (index >= 0) {
-      serviceId =
-          serviceId.substring(0, index - 1) + serviceId.substring(index, 1).toUpperCase() + serviceId.substring(index + 1);
-      index = serviceId.indexOf("_");
-    }
-    return serviceId;
   }
 
 
