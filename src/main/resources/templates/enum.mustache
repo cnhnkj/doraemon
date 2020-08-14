@@ -1,0 +1,13 @@
+package {{modelPackage}};
+
+import lombok.Getter;
+
+
+@Getter
+public enum {{enumClass}} {
+{{#enumList}}
+  {{enumName}},
+{{/enumList}}
+  ;
+}
+

@@ -2,8 +2,10 @@ package com.huinong.truffle.doraemon.utils;
 
 public class ServiceUtils {
 
-  public static String serviceId2FeignClient(String serviceId) {
-    serviceId = serviceId.substring(0, 1).toUpperCase() + serviceId.substring(1);
+  public static String serviceId2FeignClient(String serviceId, boolean firstUpper) {
+    if(firstUpper) {
+      serviceId = serviceId.substring(0, 1).toUpperCase() + serviceId.substring(1);
+    }
     int index = serviceId.indexOf("-");
     while (index >= 0) {
       serviceId =

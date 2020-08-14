@@ -4,7 +4,9 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.huinong.truffle.doraemon.utils.PathUtils;
 import com.huinong.truffle.doraemon.utils.ServiceUtils;
+import io.swagger.v3.oas.models.media.ObjectSchema;
 import io.swagger.v3.oas.models.media.Schema;
+import io.swagger.v3.oas.models.media.StringSchema;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -46,11 +48,25 @@ public class HnCodeGenerator extends DefaultGenerator {
 
 
   private void createModelByName(String modelName) {
+    createModelByName(modelName, false);
+  }
+
+  private void createModelByName(String modelName, boolean responseModel) {
     List<Map<String, Object>> objects = Lists.newArrayList();
     Map<String, Schema> schemaMap = new HashMap<>();
 
     Schema schema = ModelUtils.getSchema(this.openAPI, modelName);
-    if (schema == null) {
+    if (schema == null && SKIP_IMPORT_BASIC_TYPE.stream().noneMatch(type -> type.equalsIgnoreCase(modelName))) {
+      if(responseModel) {
+        schema = ModelUtils.getSchema(this.openAPI, "BaseResult" + modelName);
+        if(schema.getType().equalsIgnoreCase("object") && !CollectionUtils.isEmpty(schema.getProperties())) {
+          Object dataSchema = schema.getProperties().get("data");
+          if(dataSchema instanceof StringSchema) {
+            List list = ((StringSchema)dataSchema).getEnum();
+            createEnum(list, modelName);
+          }
+        }
+      }
       return;
     }
 
@@ -64,7 +80,7 @@ public class HnCodeGenerator extends DefaultGenerator {
       if (c.get("className") != null) {
         String beanOutputFilePath = PathUtils
             .combinePath("src", "main", "java", "com", "huinong", "truffle", "doraemon", "api",
-                "bean", this.serviceId, c.get("className") + ".java");
+                "bean", ServiceUtils.serviceId2FeignClient(this.serviceId, false), c.get("className") + ".java");
         try {
           super.processTemplateToFile(c, "bean.mustache", beanOutputFilePath);
         } catch (IOException e) {
@@ -72,6 +88,25 @@ public class HnCodeGenerator extends DefaultGenerator {
         }
       }
     });
+  }
+
+  private void createEnum(List enumList, String enumClass) {
+    if(enumList.size() > 0) {
+      Map<String, Object> map = new HashMap<>();
+      List<Map<String, String>> enumListMap = new ArrayList<>();
+      enumList.forEach(l -> enumListMap.add(Map.of("enumName", l.toString())));
+      map.put("modelPackage", config.modelPackage());
+      map.put("enumList", enumListMap);
+      map.put("enumClass", enumClass);
+      String beanOutputFilePath = PathUtils
+          .combinePath("src", "main", "java", "com", "huinong", "truffle", "doraemon", "api",
+              "bean", ServiceUtils.serviceId2FeignClient(this.serviceId, false), enumClass + ".java");
+      try {
+        super.processTemplateToFile(map, "enum.mustache", beanOutputFilePath);
+      } catch (IOException e) {
+        log.error(e.getMessage(), e);
+      }
+    }
   }
 
   private Map<String, Object> processModels(CodegenConfig config, Map<String, Schema> definitions) {
@@ -140,11 +175,12 @@ public class HnCodeGenerator extends DefaultGenerator {
     return objs;
   }
 
+
   private void createFeignApi() {
     Map<String, List<CodegenOperation>> paths = processPaths(this.openAPI.getPaths());
     Map<String, Object> result = Maps.newHashMap();
 
-    String feignClientName = ServiceUtils.serviceId2FeignClient(serviceId);
+    String feignClientName = ServiceUtils.serviceId2FeignClient(serviceId, true);
     result.put("serviceName", serviceId);
     result.put("apiPackage", config.apiPackage());
     result.put("feignClientName", feignClientName);
@@ -182,8 +218,18 @@ public class HnCodeGenerator extends DefaultGenerator {
           log.error("returnObject is not BaseResult, returnObject is {}, path is {}", returnObject, codegenOperation.path);
           continue;
         }
+        //VipType
+        //BaseResultMapStringObject
+        if(returnObject.equalsIgnoreCase("MapStringObject")) {
+          log.error("returnObject is not BaseResult, returnObject is {}, path is {}", returnObject, codegenOperation.path);
+          continue;
+        }
 
-        createModelByName(returnObject);
+        if(returnObject.equalsIgnoreCase("Void")) {
+          continue;
+        }
+
+        createModelByName(returnObject, true);
 
         //获取需要import的包
         Set<String> allImports = codegenOperation.imports;
@@ -236,11 +282,11 @@ public class HnCodeGenerator extends DefaultGenerator {
     }
     String feignOutputFilePath = PathUtils
         .combinePath("src", "main", "java", "com", "huinong", "truffle", "doraemon", "api",
-            "feign", this.serviceId, feignClientName + "Feign.java");
+            "feign", ServiceUtils.serviceId2FeignClient(this.serviceId, false), feignClientName + "Feign.java");
 
     String feignFallbackFactoryOutputFilePath = PathUtils
         .combinePath("src", "main", "java", "com", "huinong", "truffle", "doraemon", "api",
-            "feign", this.serviceId, feignClientName + "FeignFallbackFactory" + ".java");
+            "feign", ServiceUtils.serviceId2FeignClient(this.serviceId, false), feignClientName + "FeignFallbackFactory" + ".java");
     try {
       super.processTemplateToFile(result, "feign.mustache", feignOutputFilePath);
       super.processTemplateToFile(result, "feignFallbackFactory.mustache", feignFallbackFactoryOutputFilePath);

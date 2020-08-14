@@ -3,8 +3,3 @@ spring:
     name: doraemon
   profiles:
     active: test
-server:
-  port: 16666
-  tomcat:
-    max-threads: 200
-    accept-count: 300

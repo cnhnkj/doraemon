@@ -1,5 +1,6 @@
 package com.huinong.truffle.doraemon.codegen;
 
+import com.huinong.truffle.doraemon.utils.ServiceUtils;
 import io.swagger.v3.oas.models.media.Schema;
 import java.util.Map;
 import org.openapitools.codegen.CodegenModel;
@@ -13,10 +14,11 @@ public class HnJavaClientCodegen extends SpringCodegen {
    */
   public HnJavaClientCodegen(String serviceId) {
     super();
-    modelPackage = "com.huinong.truffle.doraemon.api.bean." + serviceId;
-    apiPackage = "com.huinong.truffle.doraemon.api.feign." + serviceId;
+    modelPackage = "com.huinong.truffle.doraemon.api.bean." + ServiceUtils.serviceId2FeignClient(serviceId, false);
+    apiPackage = "com.huinong.truffle.doraemon.api.feign." + ServiceUtils.serviceId2FeignClient(serviceId, false);
     apiTemplateFiles.put("feign.mustache", ".java");
     apiTemplateFiles.put("bean.mustache", ".java");
+    apiTemplateFiles.put("enum.mustache", ".java");
     modelTemplateFiles.put("bean.mustache", ".java");
     templateDir = "templates";
     embeddedTemplateDir = "templates";
