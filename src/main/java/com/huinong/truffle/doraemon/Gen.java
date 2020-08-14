@@ -14,7 +14,8 @@ public class Gen {
     //openApiV3 解析器
     OpenAPIV3Parser openAPIV3Parser = new OpenAPIV3Parser();
 
-    ServiceEnum serviceEnum = ServiceEnum.COINS;
+//    ServiceEnum serviceEnum = ServiceEnum.COINS;
+    ServiceEnum serviceEnum = ServiceEnum.DEMETER;
 
     OpenAPI openAPI = openAPIV3Parser.read(serviceEnum.getUrl());
 

@@ -10,7 +10,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -27,6 +26,12 @@ import org.springframework.util.CollectionUtils;
 @Slf4j
 public class HnCodeGenerator extends DefaultGenerator {
 
+  private static final List<String> SKIP_URL_PREFIX = Lists.newArrayList("/api", "/hsww", "/openapi");
+
+  private static final List<String> SKIP_IMPORT_COLLECTION_TYPE = Lists.newArrayList("List", "Set", "Map");
+
+  private static final List<String> SKIP_IMPORT_BASIC_TYPE = Lists.newArrayList("Integer", "Long", "Void", "Boolean", "Double");
+
   public String serviceId;
 
   public HnCodeGenerator(String serviceId) {
@@ -41,12 +46,16 @@ public class HnCodeGenerator extends DefaultGenerator {
 
 
   private void createModelByName(String modelName) {
-    Schema schema = ModelUtils.getSchema(this.openAPI, modelName);
     List<Map<String, Object>> objects = Lists.newArrayList();
-
     Map<String, Schema> schemaMap = new HashMap<>();
+
+    Schema schema = ModelUtils.getSchema(this.openAPI, modelName);
+    if (schema == null) {
+      return;
+    }
+
     schemaMap.put(modelName, schema);
-    Map<String, Object> model = processModels(config, schemaMap, false);
+    Map<String, Object> model = processModels(config, schemaMap);
     if (!CollectionUtils.isEmpty(model)) {
       objects.add(model);
     }
@@ -55,58 +64,17 @@ public class HnCodeGenerator extends DefaultGenerator {
       if (c.get("className") != null) {
         String beanOutputFilePath = PathUtils
             .combinePath("src", "main", "java", "com", "huinong", "truffle", "doraemon", "api",
-                "bean", this.serviceId,
-                c.get("className") + ".java");
+                "bean", this.serviceId, c.get("className") + ".java");
         try {
           super.processTemplateToFile(c, "bean.mustache", beanOutputFilePath);
-
-
         } catch (IOException e) {
-          e.printStackTrace();
+          log.error(e.getMessage(), e);
         }
       }
     });
   }
 
-  private void createModel() {
-
-    final Map<String, Schema> schemas = ModelUtils.getSchemas(this.openAPI);
-
-    Optional.ofNullable(schemas).ifPresent(s -> {
-      Set<String> modelKeys = s.keySet();
-      List<Map<String, Object>> objects = Lists.newArrayList();
-
-      for (String name : modelKeys) {
-        Schema schema = schemas.get(name);
-        Map<String, Schema> schemaMap = new HashMap<>();
-        schemaMap.put(name, schema);
-        Map<String, Object> model = processModels(config, schemaMap, true);
-        if (!CollectionUtils.isEmpty(model)) {
-          objects.add(model);
-        }
-      }
-
-      objects.forEach(c -> {
-        if (c.get("className") != null) {
-          String beanOutputFilePath = PathUtils
-              .combinePath("src", "main", "java", "com", "huinong", "truffle", "doraemon", "api",
-                  "bean", this.serviceId,
-                  c.get("className") + ".java");
-          try {
-            super.processTemplateToFile(c, "bean.mustache", beanOutputFilePath);
-
-
-          } catch (IOException e) {
-            e.printStackTrace();
-          }
-        }
-      });
-    });
-
-
-  }
-
-  private Map<String, Object> processModels(CodegenConfig config, Map<String, Schema> definitions, boolean hasApiModel) {
+  private Map<String, Object> processModels(CodegenConfig config, Map<String, Schema> definitions) {
     Map<String, Object> objs = new HashMap<>();
     objs.put("modelPackage", config.modelPackage());
 
@@ -121,29 +89,27 @@ public class HnCodeGenerator extends DefaultGenerator {
       }
       CodegenModel cm = config.fromModel(key, schema);
 
-      if (!CollectionUtils.isEmpty(cm.getImports())) {
-        cm.getImports().stream().filter(im -> !im.equals("List")).forEach(im -> createModelByName(im));
+      cm.imports.remove("ApiModel");
+
+      Set<String> cmImports = cm.getImports();
+      if (!CollectionUtils.isEmpty(cmImports)) {
+        cm.getImports().stream().filter(i -> SKIP_IMPORT_COLLECTION_TYPE.stream().noneMatch(i::equals)).forEach(this::createModelByName);
       }
+
       objs.put("className", key);
 
-      Optional.ofNullable(cm.getVars()).ifPresent(c -> {
+      Optional.ofNullable(cm.getVars()).ifPresent(vars -> {
         List<Map<String, String>> fieldList = Lists.newArrayList();
-        Set<String> allImports = new LinkedHashSet<>();
-
-        c.forEach(v -> {
+        vars.forEach(var -> {
           HashMap<String, String> fieldMap = Maps.newHashMap();
-          fieldMap.put("type", v.dataType);
-          fieldMap.put("field", v.baseName);
-          fieldMap.put("description", Optional.ofNullable(v.description).orElse(""));
-          allImports.addAll(cm.imports);
+          fieldMap.put("type", var.dataType);
+          fieldMap.put("field", var.baseName);
+          fieldMap.put("description", Optional.ofNullable(var.description).orElse(""));
           fieldList.add(fieldMap);
         });
 
-        if (!hasApiModel) {
-          allImports.remove("ApiModel");
-        }
         Set<String> importSet = new TreeSet<>();
-        for (String nextImport : allImports) {
+        for (String nextImport : cmImports) {
           String mapping = config.importMapping().get(nextImport);
           if (mapping == null) {
             mapping = config.toModelImport(nextImport);
@@ -190,11 +156,12 @@ public class HnCodeGenerator extends DefaultGenerator {
       List<CodegenOperation> ops = paths.get(tag);
 
       for (CodegenOperation codegenOperation : ops) {
-        if (codegenOperation.path.startsWith("/api") || codegenOperation.path.startsWith("/hsww") || codegenOperation.path
-            .startsWith("/openapi")) {
+        //判断是否符合内部接口的路径
+        if (SKIP_URL_PREFIX.stream().anyMatch(url -> codegenOperation.path.startsWith(url))) {
           continue;
         }
 
+        //如果是body参数，则定义对象
         if (codegenOperation.bodyParam != null) {
           createModelByName(codegenOperation.bodyParam.baseName);
         }
@@ -233,9 +200,18 @@ public class HnCodeGenerator extends DefaultGenerator {
             nextImport = nextImport.replace("BaseResult", "");
           }
 
-          if (nextImport.equals("Integer") || nextImport.equals("Long") || nextImport.equals("Void")) {
+          boolean skipBasicType = false;
+          for (String type : SKIP_IMPORT_BASIC_TYPE) {
+            if(nextImport.equals(type)) {
+              skipBasicType = true;
+              break;
+            }
+          }
+
+          if (skipBasicType) {
             continue;
           }
+
 
           String mapping = config.importMapping().get(nextImport);
           if (mapping == null) {
@@ -260,19 +236,16 @@ public class HnCodeGenerator extends DefaultGenerator {
     }
     String feignOutputFilePath = PathUtils
         .combinePath("src", "main", "java", "com", "huinong", "truffle", "doraemon", "api",
-            "feign", this.serviceId,
-            feignClientName + "Feign.java");
+            "feign", this.serviceId, feignClientName + "Feign.java");
 
     String feignFallbackFactoryOutputFilePath = PathUtils
         .combinePath("src", "main", "java", "com", "huinong", "truffle", "doraemon", "api",
-            "feign", this.serviceId,
-            feignClientName + "FeignFallbackFactory" + ".java");
+            "feign", this.serviceId, feignClientName + "FeignFallbackFactory" + ".java");
     try {
       super.processTemplateToFile(result, "feign.mustache", feignOutputFilePath);
       super.processTemplateToFile(result, "feignFallbackFactory.mustache", feignFallbackFactoryOutputFilePath);
     } catch (IOException e) {
-      e.printStackTrace();
-      log.info("load file error message is {}", e.getMessage());
+      log.error("load file error message is {}", e.getMessage(), e);
     }
 
   }
