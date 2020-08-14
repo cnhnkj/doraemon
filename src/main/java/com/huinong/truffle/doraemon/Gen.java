@@ -18,7 +18,7 @@ public class Gen {
     //openApiV3 解析器
     OpenAPIV3Parser openAPIV3Parser = new OpenAPIV3Parser();
 
-    OpenAPI openAPI = openAPIV3Parser.read("http://10.10.3.90:16220/v3/api-docs");
+    OpenAPI openAPI = openAPIV3Parser.read("http://10.10.3.70:16310//v3/api-docs");
 
 //    SpringCodegen codegen = new SpringCodegen();
 //    codegen.setOutputDir("/Users/leiyuchen/Documents/demo");
@@ -47,7 +47,7 @@ public class Gen {
 //    new DefaultGenerator().opts(opts).generate();
 
     ClientOptInput input = new ClientOptInput().config(new HnJavaClientCodegen()).openAPI(openAPI);
-    HnCodeGenerator apiCodegen = new HnCodeGenerator("hn-university");
+    HnCodeGenerator apiCodegen = new HnCodeGenerator("coins");
     apiCodegen.setGeneratorPropertyDefault(CodegenConstants.APIS, "true");;
     apiCodegen.setGeneratorPropertyDefault(CodegenConstants.MODELS, "true");
     apiCodegen.opts(input).generate();

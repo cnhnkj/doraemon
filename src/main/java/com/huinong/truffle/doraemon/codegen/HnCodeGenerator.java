@@ -34,13 +34,38 @@ public class HnCodeGenerator extends DefaultGenerator {
 
   @Override
   public List<File> generate() {
-
-    createModel();
     createFeignApi();
-
     return null;
   }
 
+
+  private void createModelByName(String modelName) {
+    Schema schema = ModelUtils.getSchema(this.openAPI, modelName);
+    List<Map<String, Object>> objects = Lists.newArrayList();
+
+    Map<String, Schema> schemaMap = new HashMap<>();
+    schemaMap.put(modelName, schema);
+    Map<String, Object> model = processModels(config, schemaMap, false);
+    if(!CollectionUtils.isEmpty(model)) {
+      objects.add(model);
+    }
+
+    objects.forEach(c -> {
+      if (c.get("className") != null) {
+        String beanOutputFilePath = PathUtils
+            .combinePath("src", "main", "java", "com", "huinong", "truffle", "doraemon", "api",
+                "bean",
+                c.get("className") + ".java");
+        try {
+          super.processTemplateToFile(c, "bean.mustache", beanOutputFilePath);
+
+
+        } catch (IOException e) {
+          e.printStackTrace();
+        }
+      }
+    });
+  }
 
   private void createModel() {
 
@@ -54,7 +79,7 @@ public class HnCodeGenerator extends DefaultGenerator {
         Schema schema = schemas.get(name);
         Map<String, Schema> schemaMap = new HashMap<>();
         schemaMap.put(name, schema);
-        Map<String, Object> model = processModels(config, schemaMap);
+        Map<String, Object> model = processModels(config, schemaMap, true);
         if(!CollectionUtils.isEmpty(model)) {
           objects.add(model);
         }
@@ -80,7 +105,7 @@ public class HnCodeGenerator extends DefaultGenerator {
 
   }
 
-  private Map<String, Object> processModels(CodegenConfig config, Map<String, Schema> definitions) {
+  private Map<String, Object> processModels(CodegenConfig config, Map<String, Schema> definitions, boolean hasApiModel) {
     Map<String, Object> objs = new HashMap<>();
     objs.put("modelPackage", config.modelPackage());
 
@@ -91,10 +116,13 @@ public class HnCodeGenerator extends DefaultGenerator {
 
       Schema schema = definitions.get(key);
       if (schema == null) {
-        throw new RuntimeException("schema cannot be null in processModels");
+        return new HashMap<>();
       }
       CodegenModel cm = config.fromModel(key, schema);
 
+      if(!CollectionUtils.isEmpty(cm.getImports())) {
+        cm.getImports().stream().filter(im -> !im.equals("List")).forEach(im -> createModelByName(im));
+      }
       objs.put("className", key);
 
       Optional.ofNullable(cm.getVars()).ifPresent(c -> {
@@ -110,6 +138,9 @@ public class HnCodeGenerator extends DefaultGenerator {
           fieldList.add(fieldMap);
         });
 
+        if(!hasApiModel) {
+          allImports.remove("ApiModel");
+        }
         Set<String> importSet = new TreeSet<>();
         for (String nextImport : allImports) {
           String mapping = config.importMapping().get(nextImport);
@@ -158,9 +189,15 @@ public class HnCodeGenerator extends DefaultGenerator {
       List<CodegenOperation> ops = paths.get(tag);
 
       for (CodegenOperation codegenOperation : ops) {
+        if(codegenOperation.path.startsWith("/api") || codegenOperation.path.startsWith("/hsww") || codegenOperation.path.startsWith("/openapi")) {
+          continue;
+        }
+
+        if(codegenOperation.bodyParam != null) {
+          createModelByName(codegenOperation.bodyParam.baseName);
+        }
 
         Map<String, Object> operation = Maps.newHashMap();
-
         operation.put("operation", codegenOperation);
 
         String returnObject = codegenOperation.returnType;
@@ -169,15 +206,15 @@ public class HnCodeGenerator extends DefaultGenerator {
           returnObject = returnObject.replace("BaseResultList", "");
           operation.put("returnObject", returnObject);
           operation.put("returnObjectList", "1");
-        }
-
-
-        if(returnObject.startsWith("BaseResult")) {
+        } else if(returnObject.startsWith("BaseResult")) {
           returnObject = returnObject.replace("BaseResult", "");
           operation.put("returnObject", returnObject);
+        } else {
+          log.error("returnObject is not BaseResult, returnObject is {}, path is {}", returnObject, codegenOperation.path);
+          continue;
         }
 
-
+        createModelByName(returnObject);
 
 
         //获取需要import的包
