@@ -1,5 +1,6 @@
 ### 生成的代码不进行提交
-src/main/java/com/huinong/truffle/doraemon/api/
+doraemon-api/src/
+*/target/
 
 /target/
 !.mvn/wrapper/maven-wrapper.jar

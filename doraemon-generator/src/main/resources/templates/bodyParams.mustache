@@ -1,0 +1,1 @@
+{{#isBodyParam}} {{#useBeanValidation}}@Valid{{/useBeanValidation}} @RequestBody{{^required}}(required = false){{/required}} {{^reactive}}{{{dataType}}}{{/reactive}}{{#reactive}}{{^isListContainer}}Mono{{/isListContainer}}{{#isListContainer}}Flux{{/isListContainer}}<{{{baseType}}}>{{/reactive}} {{paramName}}{{/isBodyParam}}
