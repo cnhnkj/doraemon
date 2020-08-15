@@ -44,10 +44,32 @@
 
   <repositories>
     <repository>
-      <id>rdc-snapshots</id>
-      <url>https://repo.rdc.aliyun.com/repository/42088-snapshot-klmv8u/</url>
+      <id>rdc-releases</id>
+      <name>huinong aliyun repository</name>
+      <url>https://repo.rdc.aliyun.com/repository/42088-release-aEMikA/</url>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
     </repository>
   </repositories>
+
+  <distributionManagement>
+    <repository>
+      <id>rdc-releases</id>
+      <url>
+        https://repo.rdc.aliyun.com/repository/42088-release-aEMikA/
+      </url>
+    </repository>
+    <snapshotRepository>
+      <id>rdc-snapshots</id>
+      <url>
+        https://repo.rdc.aliyun.com/repository/42088-snapshot-klmv8u/
+      </url>
+    </snapshotRepository>
+  </distributionManagement>
 
   <build>
     <plugins>
