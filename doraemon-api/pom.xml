@@ -6,7 +6,7 @@
   <parent>
     <groupId>com.huinong.truffle</groupId>
     <artifactId>doraemon</artifactId>
-    <version>0.2.0-SNAPSHOT</version>
+    <version>1.0.0-SNAPSHOT</version>
   </parent>
   <artifactId>doraemon-api</artifactId>
   <name>doraemon-api</name>
