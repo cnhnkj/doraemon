@@ -10,10 +10,12 @@ import com.huinong.truffle.doraemon.domain.eureka.AllEurekaServices;
 import com.huinong.truffle.doraemon.domain.eureka.EurekaServiceInfo;
 import com.huinong.truffle.doraemon.domain.eureka.EurekaServiceInfo.EurekaInstanceInfo;
 import com.huinong.truffle.doraemon.service.EurekaService;
+import com.huinong.truffle.doraemon.utils.ServiceUtils;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.parser.OpenAPIV3Parser;
 import java.io.File;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.annotation.Resource;
@@ -42,7 +44,6 @@ public class DoraemonApplication implements CommandLineRunner {
 
   @Override
   public void run(String... args) throws Exception {
-    FileUtils.deleteDirectory(new File("src/main/java/com/huinong/truffle/doraemon/api"));
 
     int argsLength = args.length;
 
@@ -66,15 +67,27 @@ public class DoraemonApplication implements CommandLineRunner {
 
       String serviceId;
       List<String> excludeUrl = Lists.newArrayList();
-      if (argsLength > 0 && instanceInfo.getApp().equalsIgnoreCase(args[0])) {
-        serviceId = args[0];
-        excludeUrl.addAll(getAllRealPath(instanceInfo));
-
-      } else if (argsLength == 0) {
+      if (argsLength > 0) {
+        String[] ids = args[0].split(",");
+        if(Arrays.asList(ids).contains(instanceInfo.getApp().toLowerCase())) {
+          serviceId = instanceInfo.getApp().toLowerCase();
+          excludeUrl.addAll(getAllRealPath(instanceInfo));
+        } else {
+          return ;
+        }
+      } else {
         serviceId = instanceInfo.getApp().toLowerCase();
         excludeUrl.addAll(getAllRealPath(instanceInfo));
-      } else {
-        return;
+      }
+
+      try {
+        FileUtils.deleteDirectory(new File("src/main/java/com/huinong/truffle/doraemon/api/bean/" + ServiceUtils
+            .serviceId2FeignClient(serviceId, false)));
+        FileUtils.deleteDirectory(new File("src/main/java/com/huinong/truffle/doraemon/api/feign/" + ServiceUtils
+            .serviceId2FeignClient(serviceId, false)));
+      } catch (Exception e) {
+        log.error(e.getMessage(), e);
+        return ;
       }
 
       String location = instanceInfo.getHomePageUrl() + "/v3/api-docs";
