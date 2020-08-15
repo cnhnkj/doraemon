@@ -12,12 +12,14 @@ import com.huinong.truffle.doraemon.domain.eureka.EurekaServiceInfo.EurekaInstan
 import com.huinong.truffle.doraemon.service.EurekaService;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.parser.OpenAPIV3Parser;
+import java.io.File;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.annotation.Resource;
 import joptsimple.internal.Strings;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FileUtils;
 import org.openapitools.codegen.ClientOptInput;
 import org.openapitools.codegen.CodegenConstants;
 import org.springframework.boot.CommandLineRunner;
@@ -39,7 +41,9 @@ public class DoraemonApplication implements CommandLineRunner {
 
 
   @Override
-  public void run(String... args) {
+  public void run(String... args) throws Exception {
+    FileUtils.deleteDirectory(new File("src/main/java/com/huinong/truffle/doraemon/api"));
+
     int argsLength = args.length;
 
     log.info("start doraemon project, {}", LocalDateTime.now());

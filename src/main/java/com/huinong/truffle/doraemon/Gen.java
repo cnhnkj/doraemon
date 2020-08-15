@@ -5,12 +5,17 @@ import com.huinong.truffle.doraemon.codegen.HnJavaClientCodegen;
 import com.huinong.truffle.doraemon.enums.ServiceEnum;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.parser.OpenAPIV3Parser;
+import java.io.File;
+import org.apache.commons.io.FileUtils;
 import org.openapitools.codegen.ClientOptInput;
 import org.openapitools.codegen.CodegenConstants;
 
 public class Gen {
 
-  public static void main(String[] args) {
+  public static void main(String[] args) throws Exception {
+
+    FileUtils.deleteDirectory(new File("src/main/java/com/huinong/truffle/doraemon/api"));
+
     //openApiV3 解析器
     OpenAPIV3Parser openAPIV3Parser = new OpenAPIV3Parser();
 
