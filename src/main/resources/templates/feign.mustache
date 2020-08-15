@@ -25,7 +25,7 @@ public interface {{feignClientName}}Feign{
   {{#operation}}
 
     @RequestMapping(value = "{{path}}", method = RequestMethod.{{httpMethod}})
-    BaseResult<{{#returnObjectList}}List<{{/returnObjectList}}{{returnObject}}{{#returnObjectList}}>{{/returnObjectList}}> {{operationId}}({{#allParams}}{{>queryParams}}{{>pathParams}}{{>headerParams}}{{>bodyParams}}{{>formParams}}{{#hasMore}},{{/hasMore}}{{^hasMore}}{{#reactive}}, {{/reactive}}{{/hasMore}}{{/allParams}});
+    BaseResult{{#hasBaseResult}}<{{#returnObjectList}}List<{{/returnObjectList}}{{returnObject}}{{#returnObjectList}}>{{/returnObjectList}}>{{/hasBaseResult}} {{operationId}}({{#allParams}}{{>queryParams}}{{>pathParams}}{{>headerParams}}{{>bodyParams}}{{>formParams}}{{#hasMore}},{{/hasMore}}{{^hasMore}}{{#reactive}}, {{/reactive}}{{/hasMore}}{{/allParams}});
   {{/operation}}
 {{/operations}}
 }

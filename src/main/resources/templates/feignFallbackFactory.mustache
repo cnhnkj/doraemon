@@ -36,7 +36,7 @@ public class {{feignClientName}}FeignFallbackFactory implements FallbackFactory<
         {{#operations}}
           {{#operation}}
             @Override
-            public BaseResult<{{#returnObjectList}}List<{{/returnObjectList}}{{returnObject}}{{#returnObjectList}}>{{/returnObjectList}}> {{operationId}}({{#allParams}}{{>queryParams}}{{>pathParams}}{{>headerParams}}{{>bodyParams}}{{>formParams}}{{#hasMore}},{{/hasMore}}{{^hasMore}}{{#reactive}}, {{/reactive}}{{/hasMore}}{{/allParams}}) {
+            public BaseResult{{#hasBaseResult}}<{{#returnObjectList}}List<{{/returnObjectList}}{{returnObject}}{{#returnObjectList}}>{{/returnObjectList}}>{{/hasBaseResult}} {{operationId}}({{#allParams}}{{>queryParams}}{{>pathParams}}{{>headerParams}}{{>bodyParams}}{{>formParams}}{{#hasMore}},{{/hasMore}}{{^hasMore}}{{#reactive}}, {{/reactive}}{{/hasMore}}{{/allParams}}) {
               return feignExceptionHandler.handleException(throwable);
             }
           {{/operation}}

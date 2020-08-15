@@ -222,9 +222,8 @@ public class HnCodeGenerator extends DefaultGenerator {
             continue;
           }
 
-          if(returnObject.equalsIgnoreCase("BaseResult")) {
-            log.error("[returnObject type error] returnObject is only BaseResult, path is {}", codegenOperation.path);
-            continue;
+          if(!returnObject.equalsIgnoreCase("BaseResult")) {
+            operation.put("hasBaseResult", "1");
           }
 
           if (returnObject.startsWith("BaseResultList")) {
@@ -253,6 +252,11 @@ public class HnCodeGenerator extends DefaultGenerator {
           Set<String> mappingSet = new TreeSet<>();
           for (String nextImport : allImports) {
             Map<String, String> im = new LinkedHashMap<>();
+
+            if(nextImport.equalsIgnoreCase("BaseResult")) {
+              continue;
+            }
+
             if (nextImport.startsWith("BaseResultList")) {
               nextImport = nextImport.replace("BaseResultList", "");
             }
