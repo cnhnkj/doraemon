@@ -87,7 +87,7 @@ public class DoraemonApplication implements CommandLineRunner {
         beanDir.add(ServiceUtils.serviceId2FeignClient(serviceId, false));
 
         List<String> feignDir = Lists.newArrayList(PathUtils.FEIGN_BASE_DIR);
-        beanDir.add(ServiceUtils.serviceId2FeignClient(serviceId, false));
+        feignDir.add(ServiceUtils.serviceId2FeignClient(serviceId, false));
 
         FileUtils.deleteDirectory(new File(PathUtils.combinePath(beanDir)));
         FileUtils.deleteDirectory(new File(PathUtils.combinePath(feignDir)));
