@@ -1,5 +1,8 @@
 package com.huinong.truffle.doraemon;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Lists;
 import com.huinong.framework.autoconfigure.web.BaseResult;
 import com.huinong.truffle.doraemon.codegen.HnCodeGenerator;
 import com.huinong.truffle.doraemon.codegen.HnJavaClientCodegen;
@@ -11,7 +14,9 @@ import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.parser.OpenAPIV3Parser;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.annotation.Resource;
+import joptsimple.internal.Strings;
 import lombok.extern.slf4j.Slf4j;
 import org.openapitools.codegen.ClientOptInput;
 import org.openapitools.codegen.CodegenConstants;
@@ -46,34 +51,56 @@ public class DoraemonApplication implements CommandLineRunner {
       OpenAPIV3Parser openAPIV3Parser = new OpenAPIV3Parser();
       EurekaInstanceInfo instanceInfo = info.getInstance().stream().findFirst().orElse(null);
 
-      if(instanceInfo == null) {
-        return ;
+      if (instanceInfo == null) {
+        return;
       }
 
-      if(!instanceInfo.getMetadata().containsKey("framework-version") ||
+      if (!instanceInfo.getMetadata().containsKey("framework-version") ||
           !instanceInfo.getMetadata().get("framework-version").startsWith("2.")) {
-        return ;
+        return;
       }
 
       String serviceId;
-      if(argsLength > 0 && instanceInfo.getApp().equalsIgnoreCase(args[0])) {
+      List<String> excludeUrl = Lists.newArrayList();
+      if (argsLength > 0 && instanceInfo.getApp().equalsIgnoreCase(args[0])) {
         serviceId = args[0];
+        excludeUrl.addAll(getAllRealPath(instanceInfo));
+
       } else if (argsLength == 0) {
         serviceId = instanceInfo.getApp().toLowerCase();
+        excludeUrl.addAll(getAllRealPath(instanceInfo));
       } else {
-        return ;
+        return;
       }
 
       String location = instanceInfo.getHomePageUrl() + "/v3/api-docs";
       OpenAPI openAPI = openAPIV3Parser.read(location);
 
       ClientOptInput input = new ClientOptInput().config(new HnJavaClientCodegen(serviceId)).openAPI(openAPI);
-      HnCodeGenerator apiCodegen = new HnCodeGenerator(serviceId);
-      apiCodegen.setGeneratorPropertyDefault(CodegenConstants.APIS, "true");;
+      HnCodeGenerator apiCodegen = new HnCodeGenerator(serviceId, excludeUrl);
+      apiCodegen.setGeneratorPropertyDefault(CodegenConstants.APIS, "true");
+      ;
       apiCodegen.setGeneratorPropertyDefault(CodegenConstants.MODELS, "true");
       apiCodegen.opts(input).generate();
     });
 
     log.info("done doraemon project, {}", LocalDateTime.now());
+    System.exit(0);
+  }
+
+  private List<String> getAllRealPath(EurekaInstanceInfo instanceInfo) {
+    return instanceInfo.getMetadata().values().stream().map(v -> {
+      try {
+        JsonNode jsonNode = new ObjectMapper().readValue(v, JsonNode.class);
+        if(jsonNode.has("realPath")) {
+          return jsonNode.get("realPath").asText();
+        } else {
+          return Strings.EMPTY;
+        }
+      } catch (Exception e) {
+        log.error("value is {} not contain exclude url",v);
+        return Strings.EMPTY;
+      }
+    }).collect(Collectors.toList());
   }
 }

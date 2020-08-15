@@ -1,6 +1,5 @@
 package {{modelPackage}};
 import java.io.Serializable;
-import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,7 +14,10 @@ import {{{import}}};
 @AllArgsConstructor
 public class {{className}} implements Serializable{
 {{#fieldList}}
-  @Schema(description = "{{description}}")
+
+  /**
+   * {{description}}
+   */
   private {{&type}} {{field}};
 {{/fieldList}}
 

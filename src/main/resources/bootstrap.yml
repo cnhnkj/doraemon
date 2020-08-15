@@ -3,3 +3,6 @@ spring:
     name: doraemon
   profiles:
     active: test
+
+server:
+  port: 8123

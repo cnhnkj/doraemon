@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
+import joptsimple.internal.Strings;
 import lombok.extern.slf4j.Slf4j;
 import org.openapitools.codegen.CodegenConfig;
 import org.openapitools.codegen.CodegenModel;
@@ -32,13 +33,21 @@ public class HnCodeGenerator extends DefaultGenerator {
 
   private static final List<String> SKIP_IMPORT_COLLECTION_TYPE = Lists.newArrayList("List", "Set", "Map");
 
-  private static final List<String> SKIP_IMPORT_BASIC_TYPE = Lists.newArrayList("Integer", "Long", "Void", "Boolean", "Double");
+  private static final List<String> SKIP_IMPORT_BASIC_TYPE = Lists.newArrayList("Integer", "Long", "Void", "Boolean", "Double", "String", "Object");
 
-  public String serviceId;
+  private String serviceId;
+
+  private List<String> excludeUrl = Lists.newArrayList();
 
   public HnCodeGenerator(String serviceId) {
     this.serviceId = serviceId;
   }
+
+  public HnCodeGenerator(String serviceId, List<String> excludeUrl) {
+    this.serviceId = serviceId;
+    this.excludeUrl = excludeUrl;
+  }
+
 
   @Override
   public List<File> generate() {
@@ -91,7 +100,7 @@ public class HnCodeGenerator extends DefaultGenerator {
   }
 
   private void createEnum(List enumList, String enumClass) {
-    if(enumList.size() > 0) {
+    if(!CollectionUtils.isEmpty(enumList)) {
       Map<String, Object> map = new HashMap<>();
       List<Map<String, String>> enumListMap = new ArrayList<>();
       enumList.forEach(l -> enumListMap.add(Map.of("enumName", l.toString())));
@@ -193,92 +202,100 @@ public class HnCodeGenerator extends DefaultGenerator {
 
       for (CodegenOperation codegenOperation : ops) {
         //判断是否符合内部接口的路径
-        if (SKIP_URL_PREFIX.stream().anyMatch(url -> codegenOperation.path.startsWith(url))) {
+        if (SKIP_URL_PREFIX.stream().anyMatch(url -> codegenOperation.path.startsWith(url)) || excludeUrl.contains(codegenOperation.path)) {
           continue;
         }
 
-        //如果是body参数，则定义对象
-        if (codegenOperation.bodyParam != null) {
-          createModelByName(codegenOperation.bodyParam.baseName);
-        }
-
-        Map<String, Object> operation = Maps.newHashMap();
-        operation.put("operation", codegenOperation);
-
-        String returnObject = codegenOperation.returnType;
-
-        if (returnObject.startsWith("BaseResultList")) {
-          returnObject = returnObject.replace("BaseResultList", "");
-          operation.put("returnObject", returnObject);
-          operation.put("returnObjectList", "1");
-        } else if (returnObject.startsWith("BaseResult")) {
-          returnObject = returnObject.replace("BaseResult", "");
-          operation.put("returnObject", returnObject);
-        } else {
-          log.error("returnObject is not BaseResult, returnObject is {}, path is {}", returnObject, codegenOperation.path);
-          continue;
-        }
-        //VipType
-        //BaseResultMapStringObject
-        if(returnObject.equalsIgnoreCase("MapStringObject")) {
-          log.error("returnObject is not BaseResult, returnObject is {}, path is {}", returnObject, codegenOperation.path);
-          continue;
-        }
-
-        if(returnObject.equalsIgnoreCase("Void")) {
-          continue;
-        }
-
-        createModelByName(returnObject, true);
-
-        //获取需要import的包
-        Set<String> allImports = codegenOperation.imports;
-        allImports.addAll(codegenOperation.imports);
-
-        Set<String> mappingSet = new TreeSet<>();
-        for (String nextImport : allImports) {
-          Map<String, String> im = new LinkedHashMap<>();
-          if (nextImport.startsWith("BaseResultList")) {
-            nextImport = nextImport.replace("BaseResultList", "");
+        try {
+          //如果是body参数，则定义对象
+          if (codegenOperation.bodyParam != null) {
+            createModelByName(codegenOperation.bodyParam.baseName);
           }
 
-          if (nextImport.startsWith("BaseResult")) {
-            nextImport = nextImport.replace("BaseResult", "");
-          }
+          Map<String, Object> operation = Maps.newHashMap();
+          operation.put("operation", codegenOperation);
 
-          boolean skipBasicType = false;
-          for (String type : SKIP_IMPORT_BASIC_TYPE) {
-            if(nextImport.equals(type)) {
-              skipBasicType = true;
-              break;
-            }
-          }
+          String returnObject = codegenOperation.returnType;
 
-          if (skipBasicType) {
+          if(Strings.isNullOrEmpty(returnObject)) {
+            log.error("[returnObject type error] returnObject is null or empty, path is {}", codegenOperation.path);
             continue;
           }
 
-
-          String mapping = config.importMapping().get(nextImport);
-          if (mapping == null) {
-            mapping = config.toModelImport(nextImport);
+          if(returnObject.equalsIgnoreCase("BaseResult")) {
+            log.error("[returnObject type error] returnObject is only BaseResult, path is {}", codegenOperation.path);
+            continue;
           }
 
-          if (mapping != null && !mappingSet
-              .contains(mapping)) { // ensure import (mapping) is unique
-            mappingSet.add(mapping);
+          if (returnObject.startsWith("BaseResultList")) {
+            returnObject = returnObject.replace("BaseResultList", "");
+            operation.put("returnObject", returnObject);
+            operation.put("returnObjectList", "1");
+          } else if (returnObject.startsWith("BaseResult")) {
+            returnObject = returnObject.replace("BaseResult", "");
+            operation.put("returnObject", returnObject);
+          } else {
+            log.error("[returnObject type error] returnObject is not BaseResult, returnObject is {}, path is {}", returnObject, codegenOperation.path);
+            continue;
+          }
 
-            im.put("import", mapping);
-            im.put("classname", nextImport);
-            if (!imports.contains(im)) { // avoid duplicates
-              imports.add(im);
+          if (returnObject.equalsIgnoreCase("MapStringObject")) {
+            log.error("[returnObject type error] returnObject is not BaseResult, returnObject is {}, path is {}", returnObject, codegenOperation.path);
+            continue;
+          }
+
+          createModelByName(returnObject, true);
+
+          //获取需要import的包
+          Set<String> allImports = codegenOperation.imports;
+          allImports.addAll(codegenOperation.imports);
+
+          Set<String> mappingSet = new TreeSet<>();
+          for (String nextImport : allImports) {
+            Map<String, String> im = new LinkedHashMap<>();
+            if (nextImport.startsWith("BaseResultList")) {
+              nextImport = nextImport.replace("BaseResultList", "");
+            }
+
+            if (nextImport.startsWith("BaseResult")) {
+              nextImport = nextImport.replace("BaseResult", "");
+            }
+
+            boolean skipBasicType = false;
+            for (String type : SKIP_IMPORT_BASIC_TYPE) {
+              if (nextImport.equals(type)) {
+                skipBasicType = true;
+                break;
+              }
+            }
+
+            if (skipBasicType) {
+              continue;
+            }
+
+            String mapping = config.importMapping().get(nextImport);
+            if (mapping == null) {
+              mapping = config.toModelImport(nextImport);
+            }
+
+            if (mapping != null && !mappingSet
+                .contains(mapping)) { // ensure import (mapping) is unique
+              mappingSet.add(mapping);
+
+              im.put("import", mapping);
+              im.put("classname", nextImport);
+              if (!imports.contains(im)) { // avoid duplicates
+                imports.add(im);
+              }
             }
           }
+          methods.add(operation);
+        } catch (Exception e) {
+          log.error("[returnObject type error] codegenOperation is {}, message is {}", codegenOperation, e.getMessage(), e);
         }
-        methods.add(operation);
+        result.put("importList", imports);
+        result.put("operations", methods);
       }
-      result.put("importList", imports);
-      result.put("operations", methods);
     }
     String feignOutputFilePath = PathUtils
         .combinePath("src", "main", "java", "com", "huinong", "truffle", "doraemon", "api",
