@@ -45,6 +45,7 @@ public class DoraemonApplication implements CommandLineRunner {
   @Override
   public void run(String... args) throws Exception {
 
+    //参数可以把服务名称以逗号进行分割
     int argsLength = args.length;
 
     log.info("start doraemon project, {}", LocalDateTime.now());

@@ -8,6 +8,7 @@
     <version>2.3.0-SNAPSHOT</version>
   </parent>
 
+  <version>0.1.0-SNAPSHOT</version>
   <artifactId>doraemon</artifactId>
   <packaging>jar</packaging>
   <name>doraemon</name>
