@@ -108,12 +108,18 @@ deploy到maven，使用方直接依赖jar包，并且使用jar中间的bean和cl
 
 ![Alt text](doraemon.png)
 
+## 项目的结构
+`doraemon-generator` 这个项目用于在eureka上面获取配置信息，并且通过模版来生成代码，并且代码生成到了`doraemon-api`项目里面
+`doraemon-api` 这个项目用于进行deploy，给其他服务进行引用
+`doraemon` 这个项目是整体的父项目，对子项目进行管理
+
+
 
 ## 项目使用方式
 
 - 编译整个项目 mvn clean package
-- 通过脚本来指定对应的服务来生成 doreamon-api项目（如果不指定，则生成所有的项目） 
-- deploy生成的doreamon-api项目到仓库
+- 通过脚本来指定对应的服务来生成 `doreamon-api` 项目（如果不指定，则生成所有的项目） 
+- deploy生成的 `doreamon-api` 项目到仓库
 
 ## 最后
 
