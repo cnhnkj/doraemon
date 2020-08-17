@@ -112,8 +112,8 @@ deploy到maven，使用方直接依赖jar包，并且使用jar中间的bean和cl
 ## 项目使用方式
 
 - 编译整个项目 mvn clean package
-- 根据eureka获取生成所有项目的路径，并且生成对应的sdk项目
-- deploy对应的项目jar
+- 通过脚本来指定对应的服务来生成 doreamon-api项目（如果不指定，则生成所有的项目） 
+- deploy生成的doreamon-api项目到仓库
 
 ## 最后
 
