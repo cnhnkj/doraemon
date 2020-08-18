@@ -148,10 +148,10 @@ public class HnCodeGenerator extends DefaultGenerator {
         List<Map<String, String>> fieldList = Lists.newArrayList();
         vars.forEach(var -> {
           HashMap<String, String> fieldMap = Maps.newHashMap();
-          if(var.dataType.equals("Date") && var.isDate) {
+          if(var.isDate) {
             fieldMap.put("type", "LocalDate");
             fieldMap.put("pattern", Optional.ofNullable(var.pattern).orElse("yyyy-MM-dd"));
-          } else {
+          } else if (var.isDateTime) {
             if(var.title != null) {
               if(var.title.equalsIgnoreCase("date")) {
                 fieldMap.put("type", "Date");
@@ -165,8 +165,9 @@ public class HnCodeGenerator extends DefaultGenerator {
               }
             } else {
               fieldMap.put("type", var.dataType);
-              fieldMap.put("pattern", Optional.ofNullable(var.pattern).orElse("yyyy-MM-dd HH:mm:ss"));
             }
+          } else {
+            fieldMap.put("type", var.dataType);
           }
           fieldMap.put("field", var.baseName);
           fieldMap.put("description", Optional.ofNullable(var.description).orElse(""));
