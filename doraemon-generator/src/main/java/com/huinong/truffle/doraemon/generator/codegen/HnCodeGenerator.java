@@ -150,8 +150,23 @@ public class HnCodeGenerator extends DefaultGenerator {
           HashMap<String, String> fieldMap = Maps.newHashMap();
           if(var.dataType.equals("Date") && var.isDate) {
             fieldMap.put("type", "LocalDate");
+            fieldMap.put("pattern", Optional.ofNullable(var.pattern).orElse("yyyy-MM-dd"));
           } else {
-            fieldMap.put("type", var.dataType);
+            if(var.title != null) {
+              if(var.title.equalsIgnoreCase("date")) {
+                fieldMap.put("type", "Date");
+                fieldMap.put("pattern", Optional.ofNullable(var.pattern).orElse("yyyy-MM-dd HH:mm:ss"));
+              } else if (var.title.equalsIgnoreCase("localdatetime")) {
+                fieldMap.put("type", "LocalDateTime");
+                fieldMap.put("pattern", Optional.ofNullable(var.pattern).orElse("yyyy-MM-dd HH:mm:ss"));
+              } else {
+                fieldMap.put("type", var.dataType);
+                fieldMap.put("pattern", Optional.ofNullable(var.pattern).orElse("yyyy-MM-dd HH:mm:ss"));
+              }
+            } else {
+              fieldMap.put("type", var.dataType);
+              fieldMap.put("pattern", Optional.ofNullable(var.pattern).orElse("yyyy-MM-dd HH:mm:ss"));
+            }
           }
           fieldMap.put("field", var.baseName);
           fieldMap.put("description", Optional.ofNullable(var.description).orElse(""));
