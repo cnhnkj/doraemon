@@ -148,7 +148,11 @@ public class HnCodeGenerator extends DefaultGenerator {
         List<Map<String, String>> fieldList = Lists.newArrayList();
         vars.forEach(var -> {
           HashMap<String, String> fieldMap = Maps.newHashMap();
-          fieldMap.put("type", var.dataType);
+          if(var.dataType.equals("Date") && var.isDate) {
+            fieldMap.put("type", "LocalDate");
+          } else {
+            fieldMap.put("type", var.dataType);
+          }
           fieldMap.put("field", var.baseName);
           fieldMap.put("description", Optional.ofNullable(var.description).orElse(""));
           fieldList.add(fieldMap);
