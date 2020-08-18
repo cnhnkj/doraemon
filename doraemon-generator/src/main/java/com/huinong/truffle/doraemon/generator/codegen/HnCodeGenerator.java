@@ -2,6 +2,7 @@ package com.huinong.truffle.doraemon.generator.codegen;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.huinong.truffle.doraemon.generator.utils.PathUtils;
 import com.huinong.truffle.doraemon.generator.utils.ServiceUtils;
 import io.swagger.v3.oas.models.media.Schema;
@@ -35,6 +36,8 @@ public class HnCodeGenerator extends DefaultGenerator {
 
   private static final List<String> SKIP_IMPORT_BASIC_TYPE = Lists.newArrayList("Integer", "Long", "Void", "Boolean", "Double", "String", "Object");
 
+  private static final Set<String> GENERATED_CLASS = Sets.newHashSet();
+
   private String serviceId;
 
   private List<String> excludeUrl = Lists.newArrayList();
@@ -64,6 +67,10 @@ public class HnCodeGenerator extends DefaultGenerator {
     List<Map<String, Object>> objects = Lists.newArrayList();
     Map<String, Schema> schemaMap = new HashMap<>();
 
+    if(GENERATED_CLASS.contains(modelName)) {
+      return ;
+    }
+
     Schema schema = ModelUtils.getSchema(this.openAPI, modelName);
     if (schema == null && SKIP_IMPORT_BASIC_TYPE.stream().noneMatch(type -> type.equalsIgnoreCase(modelName))) {
       if(responseModel) {
@@ -80,6 +87,7 @@ public class HnCodeGenerator extends DefaultGenerator {
     }
 
     schemaMap.put(modelName, schema);
+    GENERATED_CLASS.add(modelName);
     Map<String, Object> model = processModels(config, schemaMap);
     if (!CollectionUtils.isEmpty(model)) {
       objects.add(model);
@@ -269,11 +277,6 @@ public class HnCodeGenerator extends DefaultGenerator {
             returnObject = returnObject.replace("BaseResult", "");
             operation.put("returnObject", returnObject);
           } else {
-            log.error("[returnObject type error] returnObject is not BaseResult, returnObject is {}, path is {}", returnObject, codegenOperation.path);
-            continue;
-          }
-
-          if (returnObject.equalsIgnoreCase("MapStringObject")) {
             log.error("[returnObject type error] returnObject is not BaseResult, returnObject is {}, path is {}", returnObject, codegenOperation.path);
             continue;
           }
