@@ -121,6 +121,21 @@ deploy到maven，使用方直接依赖jar包，并且使用jar中间的bean和cl
 - 通过脚本来指定对应的服务来生成 `doreamon-api` 项目（如果不指定，则生成所有的项目） 
 - deploy生成的 `doreamon-api` 项目到仓库
 
+
+## 在落地项目过程中遇到的问题
+
+- 因为我们整体项目都是基于`springboot`和`springcloud`的，又因为整个`spring`的框架有众多注解，要生成接口定义和参数定义， 要使用到众多的判断，完全自己来利用`mustache`写
+会有巨大的工作量，所以我们主要是基于`openapi-generator`包里面的`SpringCodegen`和`DefaultGenerator`作为基础类，并且使用里面的`mustache`变量，定义自己的模版，大大减少了
+编写代码的成本
+
+- 利用现在注册到`eureka`里面的`metadata`信息来判断，哪些服务是使用了`openapi3`的协议，来完全区分`openapi2`和`openapi3`的差异性。
+
+- 利用`OpenAPIV3Parser`方法来直接解析`openapi3`的协议，来简化整体解析流程，并且配合内置的`mustache`变量来进行模版赋值
+
+- 把项目分成了两个模块, `doreamon-generator`是用于生成项目的代码，这一个子项目不需要进行deploy, `doreamon-api`模块只生成给其他项目使用的jar，减少生成的sdk的jar包的大小
+
+- 项目可以根据服务名称来指定获取信息和生成代码，有利于单独的重新生成的发布jar
+
 ## 最后
 
 这个项目也是 `惠农网` 开源的第一个开源文档和开源代码，希望这个思路有助于中等规模的公司在落地微服务的过程中少走一点弯路。
