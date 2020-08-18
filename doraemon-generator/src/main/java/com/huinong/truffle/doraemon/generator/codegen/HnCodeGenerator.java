@@ -155,7 +155,9 @@ public class HnCodeGenerator extends DefaultGenerator {
             if(var.title != null) {
               if(var.title.equalsIgnoreCase("date")) {
                 fieldMap.put("type", "Date");
-                fieldMap.put("pattern", Optional.ofNullable(var.pattern).orElse("yyyy-MM-dd HH:mm:ss"));
+                if(!Strings.isNullOrEmpty(var.pattern)) {
+                  fieldMap.put("pattern", var.pattern);
+                }
               } else if (var.title.equalsIgnoreCase("localdatetime")) {
                 fieldMap.put("type", "LocalDateTime");
                 fieldMap.put("pattern", Optional.ofNullable(var.pattern).orElse("yyyy-MM-dd HH:mm:ss"));
@@ -165,6 +167,9 @@ public class HnCodeGenerator extends DefaultGenerator {
               }
             } else {
               fieldMap.put("type", var.dataType);
+              if(!Strings.isNullOrEmpty(var.pattern)) {
+                fieldMap.put("pattern", var.pattern);
+              }
             }
           } else {
             fieldMap.put("type", var.dataType);
