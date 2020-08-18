@@ -21,6 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.openapitools.codegen.CodegenConfig;
 import org.openapitools.codegen.CodegenModel;
 import org.openapitools.codegen.CodegenOperation;
+import org.openapitools.codegen.CodegenProperty;
 import org.openapitools.codegen.DefaultGenerator;
 import org.openapitools.codegen.utils.ModelUtils;
 import org.springframework.util.CollectionUtils;
@@ -146,54 +147,9 @@ public class HnCodeGenerator extends DefaultGenerator {
 
       Optional.ofNullable(cm.getVars()).ifPresent(vars -> {
         List<Map<String, String>> fieldList = Lists.newArrayList();
-        vars.forEach(var -> {
-          HashMap<String, String> fieldMap = Maps.newHashMap();
-          if(var.isDate) {
-            fieldMap.put("type", "LocalDate");
-            fieldMap.put("pattern", Optional.ofNullable(var.pattern).orElse("yyyy-MM-dd"));
-          } else if (var.isDateTime) {
-            if(var.title != null) {
-              if(var.title.equalsIgnoreCase("date")) {
-                fieldMap.put("type", "Date");
-                if(!Strings.isNullOrEmpty(var.pattern)) {
-                  fieldMap.put("pattern", var.pattern);
-                }
-              } else if (var.title.equalsIgnoreCase("localdatetime")) {
-                fieldMap.put("type", "LocalDateTime");
-                fieldMap.put("pattern", Optional.ofNullable(var.pattern).orElse("yyyy-MM-dd HH:mm:ss"));
-              } else {
-                fieldMap.put("type", var.dataType);
-                fieldMap.put("pattern", Optional.ofNullable(var.pattern).orElse("yyyy-MM-dd HH:mm:ss"));
-              }
-            } else {
-              fieldMap.put("type", var.dataType);
-              if(!Strings.isNullOrEmpty(var.pattern)) {
-                fieldMap.put("pattern", var.pattern);
-              }
-            }
-          } else {
-            fieldMap.put("type", var.dataType);
-          }
-          fieldMap.put("field", var.baseName);
-          fieldMap.put("description", Optional.ofNullable(var.description).orElse(""));
-          fieldList.add(fieldMap);
-        });
+        vars.forEach(var -> fieldList.add(createFieldMap(var)));
 
-        Set<String> importSet = new TreeSet<>();
-        for (String nextImport : cmImports) {
-          String mapping = config.importMapping().get(nextImport);
-          if (mapping == null) {
-            mapping = config.toModelImport(nextImport);
-          }
-          if (mapping != null && !config.defaultIncludes().contains(mapping)) {
-            importSet.add(mapping);
-          }
-          // add instantiation types
-          mapping = config.instantiationTypes().get(nextImport);
-          if (mapping != null && !config.defaultIncludes().contains(mapping)) {
-            importSet.add(mapping);
-          }
-        }
+        Set<String> importSet = createImportSet(cmImports);
         List<Map<String, String>> imports = new ArrayList<>();
         for (String s : importSet) {
           Map<String, String> item = new HashMap<>();
@@ -209,6 +165,58 @@ public class HnCodeGenerator extends DefaultGenerator {
 
     config.postProcessModels(objs);
     return objs;
+  }
+
+  private Set<String> createImportSet(Set<String> cmImports) {
+    Set<String> importSet = new TreeSet<>();
+    for (String nextImport : cmImports) {
+      String mapping = config.importMapping().get(nextImport);
+      if (mapping == null) {
+        mapping = config.toModelImport(nextImport);
+      }
+      if (mapping != null && !config.defaultIncludes().contains(mapping)) {
+        importSet.add(mapping);
+      }
+      // add instantiation types
+      mapping = config.instantiationTypes().get(nextImport);
+      if (mapping != null && !config.defaultIncludes().contains(mapping)) {
+        importSet.add(mapping);
+      }
+    }
+    return importSet;
+  }
+
+  private Map<String, String> createFieldMap(CodegenProperty var) {
+    HashMap<String, String> fieldMap = Maps.newHashMap();
+    if(var.isDate) {
+      fieldMap.put("type", "LocalDate");
+      fieldMap.put("pattern", Optional.ofNullable(var.pattern).orElse("yyyy-MM-dd"));
+    } else if (var.isDateTime) {
+      if(var.title != null) {
+        if(var.title.equalsIgnoreCase("date")) {
+          fieldMap.put("type", "Date");
+          if(!Strings.isNullOrEmpty(var.pattern)) {
+            fieldMap.put("pattern", var.pattern);
+          }
+        } else if (var.title.equalsIgnoreCase("localdatetime")) {
+          fieldMap.put("type", "LocalDateTime");
+          fieldMap.put("pattern", Optional.ofNullable(var.pattern).orElse("yyyy-MM-dd HH:mm:ss"));
+        } else {
+          fieldMap.put("type", var.dataType);
+          fieldMap.put("pattern", Optional.ofNullable(var.pattern).orElse("yyyy-MM-dd HH:mm:ss"));
+        }
+      } else {
+        fieldMap.put("type", var.dataType);
+        if(!Strings.isNullOrEmpty(var.pattern)) {
+          fieldMap.put("pattern", var.pattern);
+        }
+      }
+    } else {
+      fieldMap.put("type", var.dataType);
+    }
+    fieldMap.put("field", var.baseName);
+    fieldMap.put("description", Optional.ofNullable(var.description).orElse(""));
+    return fieldMap;
   }
 
 
