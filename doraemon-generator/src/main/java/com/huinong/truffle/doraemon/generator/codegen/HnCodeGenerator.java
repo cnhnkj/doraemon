@@ -219,6 +219,11 @@ public class HnCodeGenerator extends DefaultGenerator {
           fieldMap.put("pattern", var.pattern);
         }
       }
+    } else if (var.isEnum) {
+      if(!CollectionUtils.isEmpty(var.get_enum())) {
+        createEnum(var.get_enum(), var.nameInCamelCase);
+      }
+      fieldMap.put("type", var.nameInCamelCase);
     } else {
       fieldMap.put("type", var.dataType);
     }
