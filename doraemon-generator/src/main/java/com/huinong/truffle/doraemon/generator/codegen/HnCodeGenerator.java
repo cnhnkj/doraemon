@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.concurrent.atomic.AtomicInteger;
 import joptsimple.internal.Strings;
 import lombok.extern.slf4j.Slf4j;
 import org.openapitools.codegen.CodegenConfig;
@@ -155,7 +156,7 @@ public class HnCodeGenerator extends DefaultGenerator {
 
       Optional.ofNullable(cm.getVars()).ifPresent(vars -> {
         List<Map<String, String>> fieldList = Lists.newArrayList();
-        vars.forEach(var -> fieldList.add(createFieldMap(var)));
+        vars.forEach(var -> fieldList.add(createFieldMap(var, key)));
 
         Set<String> importSet = createImportSet(cmImports);
         List<Map<String, String>> imports = new ArrayList<>();
@@ -194,7 +195,7 @@ public class HnCodeGenerator extends DefaultGenerator {
     return importSet;
   }
 
-  private Map<String, String> createFieldMap(CodegenProperty var) {
+  private Map<String, String> createFieldMap(CodegenProperty var, String className) {
     HashMap<String, String> fieldMap = Maps.newHashMap();
     if(var.isDate) {
       fieldMap.put("type", "LocalDate");
@@ -221,9 +222,9 @@ public class HnCodeGenerator extends DefaultGenerator {
       }
     } else if (var.isEnum) {
       if(!CollectionUtils.isEmpty(var.get_enum())) {
-        createEnum(var.get_enum(), var.nameInCamelCase);
+        createEnum(var.get_enum(), className + var.nameInCamelCase);
       }
-      fieldMap.put("type", var.nameInCamelCase);
+      fieldMap.put("type", className + var.nameInCamelCase);
     } else {
       fieldMap.put("type", var.dataType);
     }
