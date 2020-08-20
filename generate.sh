@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# 例子: bash generate.sh coins,paradise,hook-service,user-vip,supply,order-query,order-create
+# 例子: bash generate.sh coins,paradise,hook-service,user-vip,supply,order-query,order-create,hn-live
 
 mvn clean package
 java -jar doraemon-generator/target/doraemon-generator.jar $1
