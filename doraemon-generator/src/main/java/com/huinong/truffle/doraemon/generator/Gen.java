@@ -21,7 +21,7 @@ public class Gen {
     //openApiV3 解析器
     OpenAPIV3Parser openAPIV3Parser = new OpenAPIV3Parser();
 
-    ServiceEnum serviceEnum = ServiceEnum.COINS;
+    ServiceEnum serviceEnum = ServiceEnum.MESSAGE_CENTER;
     List<String> beanDir = Lists.newArrayList(PathUtils.BEAN_BASE_DIR);
     beanDir.add(ServiceUtils.serviceId2FeignClient(serviceEnum.getServiceId(), false));
 

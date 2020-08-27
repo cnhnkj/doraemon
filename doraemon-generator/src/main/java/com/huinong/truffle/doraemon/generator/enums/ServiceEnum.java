@@ -6,6 +6,8 @@ public enum ServiceEnum {
   DEMETER("DEMETER", "http://10.10.3.89:16304/v3/api-docs"),
   PARADISE("PARADISE", "http://10.10.3.59:7772/v3/api-docs"),
   USER_VIP("USER-VIP", "http://10.10.3.86:15108/v3/api-docs"),
+  MARKET_PLATFORM("MARKET-PLATFORM", "http://10.10.3.83:16203/v3/api-docs"),
+  MESSAGE_CENTER("MESSAGE-CENTER", "http://10.10.3.59:8099//v3/api-docs"),
 
   ;
 

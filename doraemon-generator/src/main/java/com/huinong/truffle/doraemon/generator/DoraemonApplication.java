@@ -97,6 +97,7 @@ public class DoraemonApplication implements CommandLineRunner {
       }
 
       String location = instanceInfo.getHomePageUrl() + "/v3/api-docs";
+      log.info("service id is {}, location is {}", serviceId, location);
       OpenAPI openAPI = openAPIV3Parser.read(location);
 
       HnJavaClientCodegen hnJavaClientCodegen = new HnJavaClientCodegen(serviceId);
