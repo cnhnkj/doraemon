@@ -37,7 +37,7 @@ public class HnCodeGenerator extends DefaultGenerator {
 
   private static final List<String> SKIP_IMPORT_BASIC_TYPE = Lists.newArrayList("Integer", "Long", "Void", "Boolean", "Double", "String", "Object");
 
-  private static final Set<String> GENERATED_CLASS = Sets.newHashSet();
+  private Set<String> GENERATED_CLASS = Sets.newHashSet();
 
   private String serviceId;
 
