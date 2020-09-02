@@ -7,7 +7,7 @@
 # bash generate.sh supply,order-query,order-create,hn-live
 
 # 1.2.0
-# bash generate.sh phoenix,shop-mono,market-platform,message-center,imcore-poly
+# bash generate.sh phoenix,shop-mono
 
 # 1.3.0
 # bash generate.sh communication,wechat-foreground,imdatacenter-mono
