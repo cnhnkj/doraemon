@@ -12,7 +12,6 @@ public class ServiceUtils {
   }
 
   public static String pathToFunctionName(String path) {
-    path = path.toLowerCase();
     path = replaceChar(path, "-");
     path = replaceChar(path, "_");
     path = replaceChar(path, "/");
