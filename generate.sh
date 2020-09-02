@@ -15,7 +15,7 @@
 # mvn clean package
 java -jar doraemon-generator/target/doraemon-generator.jar $1
 
-mvn clean deploy 
+# mvn clean deploy 
 # mvn clean install 
 
 

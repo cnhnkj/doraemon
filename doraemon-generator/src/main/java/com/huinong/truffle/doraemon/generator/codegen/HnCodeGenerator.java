@@ -263,6 +263,7 @@ public class HnCodeGenerator extends DefaultGenerator {
 
           Map<String, Object> operation = Maps.newHashMap();
           operation.put("operation", codegenOperation);
+          operation.put("functionId", ServiceUtils.pathToFunctionName(codegenOperation.path));
 
           String returnObject = codegenOperation.returnType;
 

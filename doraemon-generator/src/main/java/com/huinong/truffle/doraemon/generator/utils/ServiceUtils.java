@@ -6,20 +6,29 @@ public class ServiceUtils {
     if(firstUpper) {
       serviceId = serviceId.substring(0, 1).toUpperCase() + serviceId.substring(1);
     }
-    int index = serviceId.indexOf("-");
+    serviceId = replaceChar(serviceId, "-");
+    serviceId = replaceChar(serviceId, "_");
+    return serviceId;
+  }
+
+  public static String pathToFunctionName(String path) {
+    path = path.toLowerCase();
+    path = replaceChar(path, "-");
+    path = replaceChar(path, "_");
+    path = replaceChar(path, "/");
+    path = path.substring(0, 1).toLowerCase() + path.substring(1);
+    return path;
+  }
+
+  private static String replaceChar(String str, String c) {
+    int index = str.indexOf(c);
     while (index >= 0) {
-      serviceId =
-          serviceId.substring(0, index) + serviceId.substring(index + 1, index + 2).toUpperCase() + serviceId
+      str =
+          str.substring(0, index) + str.substring(index + 1, index + 2).toUpperCase() + str
               .substring(index + 2);
-      index = serviceId.indexOf("-");
+      index = str.indexOf(c);
     }
 
-    index = serviceId.indexOf("_");
-    while (index >= 0) {
-      serviceId =
-          serviceId.substring(0, index - 1) + serviceId.substring(index, 1).toUpperCase() + serviceId.substring(index + 1);
-      index = serviceId.indexOf("_");
-    }
-    return serviceId;
+    return str;
   }
 }
